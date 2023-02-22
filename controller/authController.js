@@ -1,7 +1,13 @@
 const UserModels = require("../models/user");
 const jwt = require("jsonwebtoken");
 
-// create  profile
+// =================================
+//
+//
+// THIS FUNCTION USED TO CREATE PROFILE
+//
+//
+// =================================
 exports.CreatePorfile = async (req, res) => {
   try {
     if (!req.files.avatar || !req.files.background) {
@@ -46,7 +52,13 @@ exports.CreatePorfile = async (req, res) => {
   }
 };
 
-// update  profile by address
+// =================================
+//
+//
+// THIS FUNCTION USED TO UPDATE PROFILE
+//
+//
+// =================================
 exports.updateProfile = async (req, res) => {
   try {
     if (req.files.background && req.files.background.length > 0) {
@@ -64,7 +76,13 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// update  Login user by address
+// =================================
+//
+//
+// THIS FUNCTINO USED LOGIN USER
+//
+//
+// =================================
 exports.login = async (req, res) => {
   try {
     let data = await UserModels.findOne({

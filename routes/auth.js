@@ -47,11 +47,24 @@ const upload = multer({
   { name: "background", maxCount: 1 },
 ]);
 
+// =================================
+//
+//
+// create profile
+//
+//
+// ================================
 router.route("/profile/create").post(upload, AuthController.CreatePorfile);
+
+// update profile
 router
   .route("/profile/update")
   .post(upload, auth, AuthController.updateProfile);
+
+// login user
 router.route("/login").post(AuthController.login);
+
+//  search data
 router.route("/search").post(SearchController.search);
 
 module.exports = router;

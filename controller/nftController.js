@@ -1,7 +1,15 @@
 const NFTModel = require("../models/nft");
 
+// =================================
+//
+//
+// THIS FUNCTINO USED TO CREATE NFT
+//
+//
+// =================================
 exports.nftCreate = async (req, res) => {
   try {
+    // console.log("this i file", req.file);
     let exist = await NFTModel.findOne({
       tokenId: String(req.body.tokenId),
       tokenAddress: req.body.tokenAddress.toLowerCase(),
@@ -35,12 +43,20 @@ exports.nftCreate = async (req, res) => {
       .status(200)
       .json({ status: false, message: "Sucessfully created" });
   } catch (error) {
+    console.log("this is err", error);
     return res
       .status(500)
       .json({ message: "Something went wrong", error: error.message });
   }
 };
 
+// =================================
+//
+//
+// THIS FUNCTINO USED TO UPDATE NFT
+//
+//
+// =================================
 exports.nftUpdate = async (req, res) => {
   try {
     if (!req.body.id) {
@@ -69,6 +85,13 @@ exports.nftUpdate = async (req, res) => {
   }
 };
 
+// =================================
+//
+//
+// THIS FUNCTINO USED TO Delete NFT
+//
+//
+// =================================
 exports.nftdelete = async (req, res) => {
   try {
     if (!req.body.id) {
@@ -94,6 +117,13 @@ exports.nftdelete = async (req, res) => {
   }
 };
 
+// =================================
+//
+//
+// NFt with LOWESt PRICE
+//
+//
+// =================================
 exports.lowestPriceNFTs = async (req, res) => {
   try {
     let chainId = parseInt(req.body.chainId);
@@ -123,6 +153,14 @@ exports.lowestPriceNFTs = async (req, res) => {
     });
   }
 };
+
+// =================================
+//
+//
+// NFTS WITH HEIGHT PRICE
+//
+//
+// =================================
 
 exports.highestPriceNFTs = async (req, res) => {
   try {
@@ -154,6 +192,13 @@ exports.highestPriceNFTs = async (req, res) => {
   }
 };
 
+// =================================
+//
+//
+// SINGLE NFT
+//
+//
+// =================================
 exports.singleNFTs = async (req, res) => {
   try {
     var nftdata = await NFTModel.findOne(req.body.filter).lean().exec();
@@ -167,6 +212,13 @@ exports.singleNFTs = async (req, res) => {
   }
 };
 
+// =================================
+//
+//
+// THIS FUNCTION USED TO FIND NFTS BY USER ADDRESS
+//
+//
+// =================================
 exports.myNFT = async (req, res) => {
   try {
     var nftdata = await NFTModel.find({
@@ -182,6 +234,13 @@ exports.myNFT = async (req, res) => {
   }
 };
 
+// =================================
+//
+//
+// THIS FUNCTION USED TO FIND LIKED NFTS BY USER ADDRESS
+//
+//
+// =================================
 exports.myLikedNFT = async (req, res) => {
   try {
     var nftdata = await NFTModel.find({
@@ -199,6 +258,14 @@ exports.myLikedNFT = async (req, res) => {
   }
 };
 
+// =================================
+//
+//
+// THIS FUNCTION USED TO FIND ALL NFTS
+//
+//
+// =================================
+
 exports.allNFTs = async (req, res) => {
   try {
     let chainId = parseInt(req.body.chainId);
@@ -212,6 +279,9 @@ exports.allNFTs = async (req, res) => {
         .lean()
         .exec();
       let totalPage = Math.ceil(count / parseInt(req.body.size));
+
+      filterData.reverse();
+
       return res.status(200).json({
         status: true,
         message: "All NFTs",
@@ -227,6 +297,14 @@ exports.allNFTs = async (req, res) => {
     });
   }
 };
+
+// =================================
+//
+//
+// THIS FUNCTION USED TO FIND NFTS THAT ARE MOST LIKED
+//
+//
+// =================================
 
 exports.mostLikedNfts = async (req, res) => {
   try {
@@ -258,6 +336,13 @@ exports.mostLikedNfts = async (req, res) => {
   }
 };
 
+// =================================
+//
+//
+// THIS FUNCTION USED TO FIND NFTS WITH LEAST LIEKS
+//
+//
+// =================================
 exports.leastLikedNfts = async (req, res) => {
   try {
     let chainId = parseInt(req.body.chainId);
@@ -287,6 +372,14 @@ exports.leastLikedNfts = async (req, res) => {
     });
   }
 };
+
+// =================================
+//
+//
+// THIS FUNCTION USED TO ADD LIKE ON NFT
+//
+//
+// =================================
 
 exports.addLike = async function (req, res) {
   try {
@@ -320,5 +413,92 @@ exports.addLike = async function (req, res) {
   } catch (err) {
     console.log(err);
     return res.status(500).json({ status: false, message: err.message });
+  }
+};
+
+//  get all NewEst Nfts
+
+exports.oldest = async (req, res) => {
+  try {
+    // console.log("this route is working");
+    if (!req.body.chainId || !req.body.size || !req.body.page) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "add correct body data" });
+    }
+    let chainId = parseInt(req.body.chainId);
+    let count = await NFTModel.countDocuments({ chainId }).exec();
+    if (count < 1) {
+      return res.status(500).json({ status: false, message: "NFTs Not Found" });
+    } else {
+      let filterData = await NFTModel.find({ chainId })
+        .skip((parseInt(req.body.page) - 1) * parseInt(req.body.size))
+        .limit(parseInt(req.body.size))
+        .lean()
+        .exec();
+      // console.log("this is filterData", filterData);
+      let totalPage = Math.ceil(count / parseInt(req.body.size));
+      return res.status(200).json({
+        status: true,
+        message: "All Newest Nfts",
+        data: filterData,
+        totalPage,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      status: false,
+      message: "Some thing went wrong",
+      error: error.message,
+    });
+  }
+};
+
+// ==========================
+//
+//         On Sell Nfts
+//
+// =========================
+
+exports.onSell = async (req, res) => {
+  try {
+    console.log(req.body);
+    if (
+      !req.body.chainId ||
+      !req.body.size ||
+      !req.body.page ||
+      !req.body.onSell
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, msg: "add correct body data" });
+    }
+    let chainId = parseInt(req.body.chainId);
+    let count = await NFTModel.countDocuments({ chainId }).exec();
+    if (count < 1) {
+      return res.status(500).json({ status: false, message: "NFTs Not Found" });
+    } else {
+      let filterData = await NFTModel.find({
+        chainId,
+        isOnSell: req.body.onSell,
+      })
+        .skip((parseInt(req.body.page) - 1) * parseInt(req.body.size))
+        .limit(parseInt(req.body.size))
+        .lean()
+        .exec();
+      // console.log("this is filterData", filterData);
+      let totalPage = Math.ceil(count / parseInt(req.body.size));
+
+      filterData.reverse();
+      return res.status(200).json({
+        status: true,
+        message: "All Newest Nfts that are on Sell",
+        data: filterData,
+        totalPage,
+      });
+    }
+  } catch (err) {
+    console.log("this is an erro", err);
+    res.status(500).json({ msg: "server Error", success: false });
   }
 };

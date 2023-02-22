@@ -1,29 +1,13 @@
+require("dotenv").config();
+require("./config/dataBase");
+
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
-require("dotenv").config();
 var indexRouter = require("./routes/index");
 var apiRouter = require("./routes/api");
 var cors = require("cors");
-
-// DB connection
-var MONGODB_URL = process.env.MONGODB_URL;
-var mongoose = require("mongoose");
-mongoose
-  .connect(MONGODB_URL)
-  .then(() => {
-    //don't show the log when it is test
-    if (process.env.NODE_ENV !== "test") {
-      console.log("Connected to %s", MONGODB_URL);
-      console.log("Server is running ... \n");
-      console.log("Press CTRL + C to stop the process. \n");
-    }
-  })
-  .catch((err) => {
-    console.error("App starting error:", err.message);
-    process.exit(1);
-  });
 
 var app = express();
 
