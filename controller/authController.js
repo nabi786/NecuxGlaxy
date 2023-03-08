@@ -89,7 +89,9 @@ exports.login = async (req, res) => {
       address: req.body.address.toLowerCase(),
     }).exec();
     if (!data) {
-      return res.status(401).json("This Wallet address is not found");
+      return res
+        .status(401)
+        .json({ success: false, msg: "This Wallet address is not found" });
     } else {
       let tokenData = {
         _id: data._id,
