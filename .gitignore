@@ -1,4 +1,4 @@
 node_modules
-public/nft/
-public/collection/
-public/user/
+# public/nft/
+# public/collection/
+# public/user/
