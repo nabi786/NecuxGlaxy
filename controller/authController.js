@@ -1,6 +1,8 @@
 const UserModels = require("../models/user");
 const jwt = require("jsonwebtoken");
 
+const cloudinary = require("../config/cloudinary");
+
 // =================================
 //
 //
@@ -16,6 +18,7 @@ exports.CreatePorfile = async (req, res) => {
         message: "Avatar and Background image is required",
       });
     }
+
     const { body } = req;
     let exist = await UserModels.findOne({
       address: body.address.toLowerCase(),
@@ -28,13 +31,21 @@ exports.CreatePorfile = async (req, res) => {
         message: "This wallet address is already exist",
       });
     } else {
+      // uploading avatar and backgound on cloudinary
+      var avatar = await cloudinary.v2.uploader.upload(
+        req.files.avatar[0].path
+      );
+      var background = await cloudinary.v2.uploader.upload(
+        req.files.background[0].path
+      );
+
       await new UserModels({
         address: body.address.toLowerCase(),
         firstName: body.firstName,
         lastName: body.lastName,
         description: body.description,
-        avatar: req.files.avatar[0].filename,
-        background: req.files.background[0].filename,
+        avatar: avatar.secure_url,
+        background: background.secure_url,
         twitter: body.twitter,
         facebook: body.facebook,
         instagram: body.instagram,
