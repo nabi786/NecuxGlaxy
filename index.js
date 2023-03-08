@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, "public")));
 //To allow cross-origin requests
 app.use(cors());
 
-//Route Prefixes
+//Route Prefixes  here
 app.use("/", indexRouter);
 app.use("/api/", apiRouter);
 
