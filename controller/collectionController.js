@@ -43,8 +43,8 @@ exports.createCollection = async (req, res) => {
     var newCollection = await new CollectionModel({
       name: req.body.name,
       owner: req.user.address,
-      avatar: req.files.avatar[0].filename,
-      background: req.files.background[0].filename,
+      avatar: "",
+      background: "",
       description: req.body.description,
       externalUrl: req.body.externalUrl,
       category: req.body.category,
