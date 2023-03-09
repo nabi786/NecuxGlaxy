@@ -58,7 +58,7 @@ const upload = multer({
 //
 //
 // ================================
-const imgUpload = require("../middleware/imgUploader");
+const imgUpload = require("../public/imgUploader");
 
 router.post(
   "/profile/create",
