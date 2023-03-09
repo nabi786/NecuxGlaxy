@@ -6,6 +6,7 @@ const SearchController = require("../controller/searchController");
 const multer = require("multer");
 const uuid = require("uuid");
 
+// backend routers
 const router = express.Router();
 
 const storage = multer.diskStorage({
