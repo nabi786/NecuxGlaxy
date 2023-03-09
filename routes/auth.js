@@ -4,6 +4,7 @@ const path = require("../middleware/auth");
 const AuthController = require("../controller/authController");
 const SearchController = require("../controller/searchController");
 const multer = require("multer");
+const uuid = require("uuid");
 
 const router = express.Router();
 
