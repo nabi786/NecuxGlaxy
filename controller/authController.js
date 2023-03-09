@@ -10,7 +10,7 @@ const cloudinary = require("../config/cloudinary");
 //
 //
 // =================================
-exports.CreatePorfile = async (req, res) => {
+const CreatePorfile = async (req, res) => {
   try {
     console.log("this is req files  ", req.files[0].filename);
     // if (!req.files.avatar || !req.files.background) {
@@ -71,7 +71,7 @@ exports.CreatePorfile = async (req, res) => {
 //
 //
 // =================================
-exports.updateProfile = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
     if (req.files.background && req.files.background.length > 0) {
       Object.assign(req.body, { background: req.files.background[0].filename });
@@ -95,7 +95,7 @@ exports.updateProfile = async (req, res) => {
 //
 //
 // =================================
-exports.login = async (req, res) => {
+const login = async (req, res) => {
   try {
     let data = await UserModels.findOne({
       address: req.body.address.toLowerCase(),
@@ -142,4 +142,8 @@ exports.login = async (req, res) => {
   }
 };
 
-// module.export { }
+// module.export {userOBj}
+
+const userOBj = { CreatePorfile, updateProfile, login, updateProfile };
+
+module.exports = userOBj;
