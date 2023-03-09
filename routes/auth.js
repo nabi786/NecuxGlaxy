@@ -3,12 +3,46 @@ const auth = require("../middleware/auth");
 const path = require("path");
 const AuthController = require("../controller/authController");
 const SearchController = require("../controller/searchController");
+const multer = require("multer");
 const { validateHeaderName } = require("http");
-const imgUpload = require("../middleware/imgUploader");
 
 // require("../");
+
 // backend routers
 const router = express.Router();
+
+const storage = multer.diskStorage({
+  filename: (req, file, cb) => {
+    if (file.fieldname === "avatar") {
+      cb(null, Date.now() + file.originalname);
+    } else if (file.fieldname === "background") {
+      cb(null, Date.now() + file.originalname);
+    }
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype == "image/jpeg" ||
+    file.mimetype == "image/png" ||
+    file.mimetype == "image/jpg" ||
+    file.mimetype == "image/heif" ||
+    file.mimetype == "image/heic"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 1024 * 1024 * 10 },
+  fileFilter: fileFilter,
+}).fields([
+  { name: "avatar", maxCount: 1 },
+  { name: "background", maxCount: 1 },
+]);
 
 // =================================
 //
@@ -17,20 +51,12 @@ const router = express.Router();
 //
 //
 // ================================
-
-router.post(
-  "/profile/create",
-  imgUpload.array("userImgs", 2),
-  AuthController.CreatePorfile
-);
+router.route("/profile/create").post(upload, AuthController.CreatePorfile);
 
 // update profile
-router.post(
-  "/profile/update",
-  imgUpload.array("userImgs", 2),
-  auth,
-  AuthController.updateProfile
-);
+router
+  .route("/profile/update")
+  .post(upload, auth, AuthController.updateProfile);
 
 // login user
 router.route("/login").post(AuthController.login);
