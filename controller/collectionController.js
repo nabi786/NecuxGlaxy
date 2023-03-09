@@ -9,49 +9,58 @@ const CollectionModel = require("../models/collection");
 // =================================
 exports.createCollection = async (req, res) => {
   try {
-    const { body } = req;
-    body.token = body.token.toString();
-    body.token = JSON.parse(body.token);
-    const existing = await CollectionModel.findOne({
-      name: { $regex: "^" + body.name + "$", $options: "i" },
+    // const { body } = req;
+    // body.token = body.token.toString();
+    // body.token = JSON.parse(body.token);
+    // const existing = await CollectionModel.findOne({
+    //   name: { $regex: "^" + body.name + "$", $options: "i" },
+    //   owner: req.user.address,
+    // });
+    // if (
+    //   existing &&
+    //   existing.tokens.filter(
+    //     (x) => x.id == body.token.id && x.address == body.token.address
+    //   ).length > 0
+    // ) {
+    //   return res
+    //     .status(500)
+    //     .json({ status: false, message: "This Collection is already exists." });
+    // } else if (existing) {
+    //   await CollectionModel.findOneAndUpdate(
+    //     {
+    //       name: { $regex: "^" + body.name + "$", $options: "i" },
+    //       owner: req.user.address,
+    //     },
+    //     { $push: { tokens: body.token } }
+    //   ).exec();
+    //   return res.status(200).json({
+    //     status: true,
+    //     message: "Successfully NFT added into collection",
+    //   });
+    // } else {
+
+    var collectionName = req.body.name;
+
+    var isAlreadyCollection = await CollectionModel.find(
+      { owner: req.user.address },
+      { name: collectionName.toLowerCase() }
+    );
+
+    var newCollection = await new CollectionModel({
+      name: collectionName.toLowerCase(),
       owner: req.user.address,
+      avatar: req.files.avatar[0].filename,
+      background: req.files.background[0].filename,
+      description: req.body.description,
+      externalUrl: req.body.externalUrl,
+      category: req.body.category,
+      // tokens: body.token,
     });
-    if (
-      existing &&
-      existing.tokens.filter(
-        (x) => x.id == body.token.id && x.address == body.token.address
-      ).length > 0
-    ) {
-      return res
-        .status(500)
-        .json({ status: false, message: "This Collection is already exists." });
-    } else if (existing) {
-      await CollectionModel.findOneAndUpdate(
-        {
-          name: { $regex: "^" + body.name + "$", $options: "i" },
-          owner: req.user.address,
-        },
-        { $push: { tokens: body.token } }
-      ).exec();
-      return res.status(200).json({
-        status: true,
-        message: "Successfully NFT added into collection",
-      });
-    } else {
-      await new CollectionModel({
-        name: body.name,
-        owner: req.user.address,
-        avatar: req.files.avatar[0].filename,
-        background: req.files.background[0].filename,
-        description: body.description,
-        externalUrl: body.externalUrl,
-        category: body.category,
-        tokens: body.token,
-      }).save();
-      return res
-        .status(200)
-        .json({ status: true, message: "Successfully Collection added!" });
-    }
+
+    await newCollection.save();
+    return res
+      .status(200)
+      .json({ status: true, message: "Successfully Collection added!" });
   } catch (error) {
     return res.status(500).json({
       status: false,
