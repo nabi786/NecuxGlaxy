@@ -11,9 +11,9 @@ const router = express.Router();
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     if (file.fieldname === "avatar") {
-      cb(null, "./public/user/avatar/");
+      cb(null, "/public/user/avatar/");
     } else if (file.fieldname === "background") {
-      cb(null, "./public/user/background/");
+      cb(null, "/public/user/background/");
     }
   },
   filename: (req, file, cb) => {
