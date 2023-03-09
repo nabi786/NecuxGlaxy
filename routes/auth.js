@@ -1,6 +1,6 @@
 const express = require("express");
 const auth = require("../middleware/auth");
-var path = require("path");
+const path = require("path");
 const AuthController = require("../controller/authController");
 const SearchController = require("../controller/searchController");
 const multer = require("multer");
@@ -10,13 +10,13 @@ const { validateHeaderName } = require("http");
 
 // backend routers
 const router = express.Router();
-
+console.log("this is path   ", path.join(__dirname, "../public/user/avatar/"));
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     if (file.fieldname === "avatar") {
-      cb(null, "public/user/avatar/");
+      cb(null, path.join(__dirname, "../public/user/avatar/"));
     } else if (file.fieldname === "background") {
-      cb(null, "public/user/background/");
+      cb(null, path.join(__dirname, "../public/user/background/"));
     }
   },
   filename: (req, file, cb) => {
