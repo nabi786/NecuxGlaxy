@@ -2,7 +2,7 @@ const multer = require("multer");
 const path = require("path");
 const uuid = require("uuid");
 
-const imagPath = "/upload";
+const imagPath = ath.join(__dirname + "/upload/");
 
 // for file upload
 var Storage = multer.diskStorage({
