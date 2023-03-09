@@ -32,20 +32,20 @@ exports.CreatePorfile = async (req, res) => {
       });
     } else {
       // uploading avatar and backgound on cloudinary
-      var avatar = await cloudinary.v2.uploader.upload(
-        req.files.avatar[0].path
-      );
-      var background = await cloudinary.v2.uploader.upload(
-        req.files.background[0].path
-      );
+      // var avatar = await cloudinary.v2.uploader.upload(
+      //   req.files.avatar[0].path
+      // );
+      // var background = await cloudinary.v2.uploader.upload(
+      //   req.files.background[0].path
+      // );
 
       await new UserModels({
         address: body.address.toLowerCase(),
         firstName: body.firstName,
         lastName: body.lastName,
         description: body.description,
-        avatar: avatar.secure_url,
-        background: background.secure_url,
+        avatar: req.files.avatar[0].filename,
+        background: req.files.background[0].filename,
         twitter: body.twitter,
         facebook: body.facebook,
         instagram: body.instagram,
