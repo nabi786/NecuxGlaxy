@@ -4,52 +4,22 @@ const CollectionController = require("../controller/collectionController");
 const multer = require("multer");
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    if (file.fieldname === "avatar") {
-      cb(null, "./public/collection/avatar/");
-    } else if (file.fieldname === "background") {
-      cb(null, "./public/collection/background/");
-    }
-  },
-  filename: (req, file, cb) => {
-    if (file.fieldname === "avatar") {
-      cb(null, Date.now() + file.originalname);
-    } else if (file.fieldname === "background") {
-      cb(null, Date.now() + file.originalname);
-    }
-  },
-});
-
-const fileFilter = (req, file, cb) => {
-  if (
-    file.mimetype == "image/jpeg" ||
-    file.mimetype == "image/png" ||
-    file.mimetype == "image/jpg" ||
-    file.mimetype == "image/heif" ||
-    file.mimetype == "image/heic"
-  ) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 1024 * 1024 * 10 },
-  fileFilter: fileFilter,
-}).fields([
-  { name: "avatar", maxCount: 1 },
-  { name: "background", maxCount: 1 },
-]);
+const imgUpload = require("../middleware/imgUploader");
 
 router
   .route("/create")
-  .post(upload, auth, CollectionController.createCollection);
+  .post(
+    imgUpload.array("userImgs", 2),
+    auth,
+    CollectionController.createCollection
+  );
 router
   .route("/update")
-  .post(upload, auth, CollectionController.updateCollection);
+  .post(
+    imgUpload.array("userImgs", 2),
+    auth,
+    CollectionController.updateCollection
+  );
 router.route("/delete").post(auth, CollectionController.deleteCollection);
 router.route("/single").post(CollectionController.getSingleCollection);
 router.route("/my").get(auth, CollectionController.myCollections);

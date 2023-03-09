@@ -39,15 +39,9 @@ exports.createCollection = async (req, res) => {
     //   });
     // } else {
 
-    var collectionName = req.body.name;
-
-    var isAlreadyCollection = await CollectionModel.find(
-      { owner: req.user.address },
-      { name: collectionName.toLowerCase() }
-    );
-
+    // creating collections
     var newCollection = await new CollectionModel({
-      name: collectionName.toLowerCase(),
+      name: req.body.name,
       owner: req.user.address,
       avatar: req.files.avatar[0].filename,
       background: req.files.background[0].filename,

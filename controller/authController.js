@@ -21,9 +21,6 @@ const CreatePorfile = async (req, res) => {
     }
 
     // uploading images on backend
-    var avatar = await cloudinary.v2.uploader.upload(req.files[0].path);
-
-    var background = await cloudinary.v2.uploader.upload(req.files[1].path);
 
     const { body } = req;
     let exist = await UserModels.findOne({
@@ -38,20 +35,21 @@ const CreatePorfile = async (req, res) => {
       });
     } else {
       // uploading avatar and backgound on cloudinary
-      // var avatar = await cloudinary.v2.uploader.upload(
-      //   req.files.avatar[0].path
-      // );
-      // var background = await cloudinary.v2.uploader.upload(
-      //   req.files.background[0].path
-      // );
+      var avatar = await cloudinary.v2.uploader.upload(req.files[0].path, {
+        folder: "nexusGalaxy/users/avatar",
+      });
+
+      var background = await cloudinary.v2.uploader.upload(req.files[1].path, {
+        folder: "nexusGalaxy/users/background",
+      });
 
       await new UserModels({
         address: body.address.toLowerCase(),
         firstName: body.firstName,
         lastName: body.lastName,
         description: body.description,
-        avatar: avatar.secure_url,
-        background: background.secure_url,
+        avatar: avatar,
+        background: background,
         twitter: body.twitter,
         facebook: body.facebook,
         instagram: body.instagram,
@@ -78,16 +76,43 @@ const CreatePorfile = async (req, res) => {
 // =================================
 const updateProfile = async (req, res) => {
   try {
-    if (req.files.background && req.files.background.length > 0) {
-      Object.assign(req.body, { background: req.files.background[0].filename });
+    if (!req.files[0] || !req.files[1]) {
+      return res.status(404).json({
+        status: false,
+        message: "Avatar and Background image is required",
+      });
+    } else {
+      var user = await UserModels.findOne({ _id: req.user._id });
+
+      if (user != null) {
+        // deleeting images from cloudinary
+        await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+        await cloudinary.v2.uploader.destroy(user.background.public_id);
+
+        // uploading images on cloudinary
+        var avatar = await cloudinary.v2.uploader.upload(req.files[0].path, {
+          folder: "nexusGalaxy/users/avatar",
+        });
+
+        var background = await cloudinary.v2.uploader.upload(
+          req.files[1].path,
+          {
+            folder: "nexusGalaxy/users/background",
+          }
+        );
+
+        Object.assign(req.body, { background: background.secure_url });
+        Object.assign(req.body, { avatar: avatar.secure_url });
+
+        await UserModels.findOneAndUpdate(
+          { _id: req.user._id },
+          req.body
+        ).exec();
+        return res
+          .status(200)
+          .json({ status: true, message: "User Details Updated Successfully" });
+      }
     }
-    if (req.files.avatar && req.files.avatar.length > 0) {
-      Object.assign(req.body, { avatar: req.files.avatar[0].filename });
-    }
-    await UserModels.findOneAndUpdate({ _id: req.user._id }, req.body).exec();
-    return res
-      .status(200)
-      .json({ status: true, message: "User Details Updated Successfully" });
   } catch (err) {
     return res.status(500).json({ status: false, message: err.message });
   }
