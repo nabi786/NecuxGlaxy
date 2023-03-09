@@ -12,8 +12,9 @@ const cloudinary = require("../config/cloudinary");
 // =================================
 const CreatePorfile = async (req, res) => {
   try {
+    // console.log(req.files.avatar);
     // console.log("this is req files  ", req.files[0]);
-    if (!req.files[0] || !req.files[1]) {
+    if (!req.files.avatar || !req.files.background) {
       return res.status(500).json({
         status: false,
         message: "Avatar and Background image is required",
@@ -35,13 +36,16 @@ const CreatePorfile = async (req, res) => {
       });
     } else {
       // uploading avatar and backgound on cloudinary
-      var avatar = await cloudinary.v2.uploader.upload(req.files[0].path, {
+      var avatar = await cloudinary.v2.uploader.upload(req.files.avatar.path, {
         folder: "nexusGalaxy/users/avatar",
       });
 
-      var background = await cloudinary.v2.uploader.upload(req.files[1].path, {
-        folder: "nexusGalaxy/users/background",
-      });
+      var background = await cloudinary.v2.uploader.upload(
+        req.files.background.path,
+        {
+          folder: "nexusGalaxy/users/background",
+        }
+      );
 
       await new UserModels({
         address: body.address.toLowerCase(),
