@@ -9,7 +9,7 @@ const imgUpload = require("../middleware/imgUploader");
 router
   .route("/create")
   .post(
-    imgUpload.array("userImgs", 2),
+    imgUpload.array("collectionImgs", 2),
     auth,
     CollectionController.createCollection
   );
