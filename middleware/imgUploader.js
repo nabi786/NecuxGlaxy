@@ -11,8 +11,8 @@ var Storage = multer.diskStorage({
   },
 });
 
-var uploadcall = multer({
+var uploadcoll = multer({
   storage: Storage,
 });
 
-module.exports = uploadcall;
+module.exports = uploadcoll;

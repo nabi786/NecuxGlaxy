@@ -58,7 +58,13 @@ const upload = multer({
 //
 //
 // ================================
-router.route("/profile/create").post(upload, AuthController.CreatePorfile);
+const imgUpload = require("../middleware/imgUploader");
+
+router.post(
+  "/profile/create",
+  imgUpload.array("userImgs", 2),
+  AuthController.CreatePorfile
+);
 
 // update profile
 router

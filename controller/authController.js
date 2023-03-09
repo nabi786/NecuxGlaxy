@@ -12,12 +12,13 @@ const cloudinary = require("../config/cloudinary");
 // =================================
 exports.CreatePorfile = async (req, res) => {
   try {
-    if (!req.files.avatar || !req.files.background) {
-      return res.status(500).json({
-        status: false,
-        message: "Avatar and Background image is required",
-      });
-    }
+    console.log("this is req files  ", req.files);
+    // if (!req.files.avatar || !req.files.background) {
+    //   return res.status(500).json({
+    //     status: false,
+    //     message: "Avatar and Background image is required",
+    //   });
+    // }
 
     const { body } = req;
     let exist = await UserModels.findOne({
@@ -44,8 +45,8 @@ exports.CreatePorfile = async (req, res) => {
         firstName: body.firstName,
         lastName: body.lastName,
         description: body.description,
-        avatar: req.files.avatar[0].filename,
-        background: req.files.background[0].filename,
+        avatar: req.files[0].filename,
+        background: req.files[1].filename,
         twitter: body.twitter,
         facebook: body.facebook,
         instagram: body.instagram,
