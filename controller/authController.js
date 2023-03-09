@@ -12,7 +12,7 @@ const cloudinary = require("../config/cloudinary");
 // =================================
 exports.CreatePorfile = async (req, res) => {
   try {
-    console.log("this is req files  ", req.files);
+    console.log("this is req files  ", req.files[0].filename);
     // if (!req.files.avatar || !req.files.background) {
     //   return res.status(500).json({
     //     status: false,
