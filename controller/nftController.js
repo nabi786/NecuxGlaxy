@@ -1,5 +1,5 @@
 const NFTModel = require("../models/nft");
-
+const cloudinary = require("../config/cloudinary");
 // =================================
 //
 //
@@ -22,11 +22,18 @@ exports.nftCreate = async (req, res) => {
         message: "This Token ID and token Address is already exists",
       });
     } else {
-      await new NFTModel({
+      // console.log("req.file", req.file);
+      var result = await cloudinary.v2.uploader.upload(req.file.path, {
+        folder: "nexusGalaxy/nft",
+      });
+      console.log(result);
+      var imgObj = { url: result.secure_url, public_id: result.public_id };
+
+      var newNFT = await new NFTModel({
         name: req.body.name,
         tokenAddress: req.body.tokenAddress.toLowerCase(),
         tokenId: req.body.tokenId,
-        image: req.file.filename,
+        image: imgObj,
         // price: req.body.price,
         owner: req.user.address,
         selectedCat: req.body.selectedCategory,
@@ -37,7 +44,10 @@ exports.nftCreate = async (req, res) => {
         status: "active",
         // withEther: req.body.withEther
         royality: req.body.royality,
-      }).save();
+      });
+
+      // saving new nft
+      await newNFT.save();
     }
     return res
       .status(200)

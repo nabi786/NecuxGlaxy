@@ -8,7 +8,7 @@ var NFTSchema = new Schema(
     tokenId: { type: String, required: true },
     price: { type: Number },
     owner: { type: String },
-    image: { type: String },
+    image: { type: Object },
     name: { type: String },
     description: { type: String },
     externalLink: { type: String },
