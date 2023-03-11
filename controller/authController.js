@@ -12,7 +12,7 @@ const cloudinary = require("../config/cloudinary");
 // =================================
 const CreatePorfile = async (req, res) => {
   try {
-    // console.log(req.files.avatar);
+    // console.log(req.files);
     // console.log("this is req files  ", req.files[0]);
     if (!req.files.avatar || !req.files.background) {
       return res.status(500).json({
@@ -30,39 +30,61 @@ const CreatePorfile = async (req, res) => {
       .lean()
       .exec();
     if (exist) {
-      return res.status(500).json({
-        status: false,
-        message: "This wallet address is already exist",
-      });
+      // console.log("isUser Already Exist", exist);
+      await login(req, res);
+      // return res.status(500).json({
+      //   status: false,
+      //   message: "This wallet address is already exist",
+      // });
     } else {
       // uploading avatar and backgound on cloudinary
-      var avatar = await cloudinary.v2.uploader.upload(req.files.avatar.path, {
-        folder: "nexusGalaxy/users/avatar",
-      });
+
+      var avatar = await cloudinary.v2.uploader.upload(
+        req.files.avatar[0].path,
+        {
+          folder: "nexusGalaxy/users/avatar",
+        }
+      );
+
+      var avatarObj = {
+        url: avatar.secure_url,
+        public_id: avatar.secure_url,
+      };
 
       var background = await cloudinary.v2.uploader.upload(
-        req.files.background.path,
+        req.files.background[0].path,
         {
           folder: "nexusGalaxy/users/background",
         }
       );
 
-      await new UserModels({
+      // console.log(background);
+
+      var backgroundOBJ = {
+        url: background.secure_url,
+        public_id: background.secure_url,
+      };
+
+      var newuser = await new UserModels({
         address: body.address.toLowerCase(),
         firstName: body.firstName,
         lastName: body.lastName,
         description: body.description,
-        avatar: avatar,
-        background: background,
+        avatar: avatarObj,
+        background: backgroundOBJ,
         twitter: body.twitter,
         facebook: body.facebook,
         instagram: body.instagram,
-      }).save();
+      });
+
+      await newuser.save();
+
       return res
         .status(200)
         .json({ status: true, message: "Sucessfully Registered" });
     }
   } catch (error) {
+    console.log("this si file", error);
     return res.status(500).json({
       status: false,
       message: "Some thing went wrong",
@@ -80,7 +102,8 @@ const CreatePorfile = async (req, res) => {
 // =================================
 const updateProfile = async (req, res) => {
   try {
-    if (!req.files[0] || !req.files[1]) {
+    console.log(req.files);
+    if (!req.files.avatar || !req.files.background) {
       return res.status(404).json({
         status: false,
         message: "Avatar and Background image is required",
@@ -94,12 +117,15 @@ const updateProfile = async (req, res) => {
         await cloudinary.v2.uploader.destroy(user.background.public_id);
 
         // uploading images on cloudinary
-        var avatar = await cloudinary.v2.uploader.upload(req.files[0].path, {
-          folder: "nexusGalaxy/users/avatar",
-        });
+        var avatar = await cloudinary.v2.uploader.upload(
+          req.files.avatar[0].path,
+          {
+            folder: "nexusGalaxy/users/avatar",
+          }
+        );
 
         var background = await cloudinary.v2.uploader.upload(
-          req.files[1].path,
+          req.files.background[0].path,
           {
             folder: "nexusGalaxy/users/background",
           }
@@ -178,6 +204,6 @@ const login = async (req, res) => {
 
 // module.export {userOBj}
 
-const userOBj = { CreatePorfile, updateProfile, login, updateProfile };
+const userOBj = { CreatePorfile, updateProfile, login };
 
 module.exports = userOBj;

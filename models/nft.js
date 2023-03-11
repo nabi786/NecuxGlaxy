@@ -7,7 +7,10 @@ var NFTSchema = new Schema(
     tokenAddress: { type: String, required: true },
     tokenId: { type: String, required: true },
     price: { type: Number },
-    owner: { type: String },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+    },
     image: { type: Object },
     name: { type: String },
     description: { type: String },

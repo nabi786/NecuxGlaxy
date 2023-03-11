@@ -1,5 +1,7 @@
 const CollectionModel = require("../models/collection");
 
+const cloudinary = require("../config/cloudinary");
+
 // =================================
 //
 //
@@ -9,35 +11,11 @@ const CollectionModel = require("../models/collection");
 // =================================
 exports.createCollection = async (req, res) => {
   try {
-    // const { body } = req;
-    // body.token = body.token.toString();
-    // body.token = JSON.parse(body.token);
-    // const existing = await CollectionModel.findOne({
-    //   name: { $regex: "^" + body.name + "$", $options: "i" },
-    //   owner: req.user.address,
-    // });
-    // if (
-    //   existing &&
-    //   existing.tokens.filter(
-    //     (x) => x.id == body.token.id && x.address == body.token.address
-    //   ).length > 0
-    // ) {
-    //   return res
-    //     .status(500)
-    //     .json({ status: false, message: "This Collection is already exists." });
-    // } else if (existing) {
-    //   await CollectionModel.findOneAndUpdate(
-    //     {
-    //       name: { $regex: "^" + body.name + "$", $options: "i" },
-    //       owner: req.user.address,
-    //     },
-    //     { $push: { tokens: body.token } }
-    //   ).exec();
-    //   return res.status(200).json({
-    //     status: true,
-    //     message: "Successfully NFT added into collection",
-    //   });
-    // } else {
+    if (!req.files.avatar || !req.files.background) {
+      return res.status(500).json({ msg: "avatar and background required" });
+    }
+
+    //
 
     // creating collections
     var newCollection = await new CollectionModel({
@@ -51,7 +29,7 @@ exports.createCollection = async (req, res) => {
       // tokens: body.token,
     });
 
-    await newCollection.save();
+    // await newCollection.save();
     return res
       .status(200)
       .json({ status: true, message: "Successfully Collection added!" });

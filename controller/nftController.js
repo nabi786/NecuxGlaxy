@@ -1,4 +1,5 @@
 const NFTModel = require("../models/nft");
+const UserModel = require("../models/user");
 const cloudinary = require("../config/cloudinary");
 // =================================
 //
@@ -22,19 +23,17 @@ exports.nftCreate = async (req, res) => {
         message: "This Token ID and token Address is already exists",
       });
     } else {
-      // console.log("req.file", req.file);
       var result = await cloudinary.v2.uploader.upload(req.file.path, {
         folder: "nexusGalaxy/nft",
       });
-      console.log(result);
-      var imgObj = { url: result.secure_url, public_id: result.public_id };
+
+      var imgOBj = { url: result.secure_url, public_id: result.public_id };
 
       var newNFT = await new NFTModel({
         name: req.body.name,
         tokenAddress: req.body.tokenAddress.toLowerCase(),
         tokenId: req.body.tokenId,
-        image: imgObj,
-        // price: req.body.price,
+        image: imgOBj,
         owner: req.user.address,
         selectedCat: req.body.selectedCategory,
         tokenUri: req.body.tokenUri,
@@ -42,12 +41,20 @@ exports.nftCreate = async (req, res) => {
         description: req.body.description,
         chainId: req.body.chainId,
         status: "active",
-        // withEther: req.body.withEther
         royality: req.body.royality,
       });
 
+      // console.log(newNFT);
+
+      // console.log("this is owner");
+      var user = await UserModel.findOne({ address: String(req.user.address) });
+      user.Nfts.push(newNFT._id);
+
       // saving new nft
       await newNFT.save();
+
+      // saving user
+      await user.save();
     }
     return res
       .status(200)
@@ -112,10 +119,19 @@ exports.nftdelete = async (req, res) => {
     let exist = await NFTModel.findOne({ _id: req.body.id }).lean().exec();
     if (!exist) {
       return res
-        .status(500)
+        .status(404)
         .json({ status: false, message: "This id is not exists" });
     } else {
       await NFTModel.findByIdAndDelete({ _id: req.body.id }).exec();
+
+      var user = await UserModel.findOne({ address: req.user.address });
+
+      var serNftIdsAry = user.Nfts;
+      var indexOfNftID = user.Nfts.indexOf(req.body.id);
+
+      serNftIdsAry.splice(indexOfNftID, 1);
+
+      user.save();
       return res
         .status(200)
         .json({ status: true, message: "Sucessfully deleted" });

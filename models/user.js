@@ -18,6 +18,18 @@ const userSchema = new mongoose.Schema(
     auction: { type: Boolean },
     isVerified: { type: Boolean },
     isOnFeatured: { type: Boolean },
+    Nfts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "nft",
+      },
+    ],
+    Collections: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "collection",
+      },
+    ],
   },
   { timestamps: true }
 );

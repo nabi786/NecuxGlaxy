@@ -62,6 +62,6 @@ router
 router.route("/login").post(AuthController.login);
 
 //  search data
-router.route("/search").post(SearchController.search);
+// router.route("/search").post(SearchController.search);
 
 module.exports = router;
