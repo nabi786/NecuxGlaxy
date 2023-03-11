@@ -73,7 +73,7 @@ exports.createCollection = async (req, res) => {
 
     console.log("Collections", user.Collections);
 
-    console.log("this is response", user);
+    // console.log("this is response", user);
     await newCollection.save();
     await user.save();
 
@@ -99,46 +99,16 @@ exports.createCollection = async (req, res) => {
 // =================================
 exports.updateCollection = async (req, res) => {
   try {
-    if (!req.body.id) {
+    var collections = await CollectionModel.findOne({ _id: req.body.id });
+    console.log(collections);
+    if (collections == null) {
       return res
-        .status(500)
-        .json({ status: false, message: "ID is necessary" });
-    }
-    const { body } = req;
-
-    const existing = await CollectionModel.findOne({ _id: req.body.id });
-    if (!existing) {
-      return res.status(500).json("Collection not found with this id");
+        .status(404)
+        .json({ success: true, msg: "no collection found" });
     } else {
-      if (req.files.background && req.files.background.length > 0) {
-        Object.assign(req.body, {
-          background: req.files.background[0].filename,
-        });
-      }
-      if (req.files.avatar && req.files.avatar.length > 0) {
-        Object.assign(req.body, { avatar: req.files.avatar[0].filename });
-      }
-      if (body.token) {
-        body.token = body.token.toString();
-        body.token = JSON.parse(body.token);
-        if (
-          !(
-            existing &&
-            existing.tokens.filter(
-              (x) => x.id == body.token.id && x.address == body.token.address
-            ).length > 0
-          )
-        ) {
-          Object.assign(body, { $push: { tokens: body.token } });
-          delete body.tokens;
-        }
-      }
-      await CollectionModel.findOneAndUpdate({ _id: body.id }, body, {
-        new: true,
-      })
-        .lean()
-        .exec();
-      return res.status(200).json("Successfully updated!");
+      return res
+        .status(200)
+        .json({ success: true, msg: "collection udpated successfully" });
     }
   } catch (error) {
     return res

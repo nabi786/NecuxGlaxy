@@ -115,7 +115,6 @@ const CreatePorfile = async (req, res) => {
 // =================================
 const updateProfile = async (req, res) => {
   try {
-    console.log(req.files);
     if (!req.files.avatar || !req.files.background) {
       return res.status(404).json({
         status: false,
@@ -126,8 +125,10 @@ const updateProfile = async (req, res) => {
 
       if (user != null) {
         // deleeting images from cloudinary
-        await cloudinary.v2.uploader.destroy(user.avatar.public_id);
-        await cloudinary.v2.uploader.destroy(user.background.public_id);
+        if (user.avatar.public_id != "" && user.background.public_id != "") {
+          await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+          await cloudinary.v2.uploader.destroy(user.background.public_id);
+        }
 
         // uploading images on cloudinary
         var avatar = await cloudinary.v2.uploader.upload(
@@ -144,8 +145,20 @@ const updateProfile = async (req, res) => {
           }
         );
 
-        Object.assign(req.body, { background: background.secure_url });
-        Object.assign(req.body, { avatar: avatar.secure_url });
+        var avatarObj = {
+          url: avatar.secure_url,
+          public_id: avatar.public_id,
+        };
+
+        var backgroundOBJ = {
+          url: background.secure_url,
+          public_id: background.public_id,
+        };
+
+        Object.assign(req.body, { background: backgroundOBJ });
+        Object.assign(req.body, { avatar: avatarObj });
+
+        console.log(req.body);
 
         await UserModels.findOneAndUpdate(
           { _id: req.user._id },
