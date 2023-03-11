@@ -14,12 +14,6 @@ const CreatePorfile = async (req, res) => {
   try {
     // console.log(req.files);
     // console.log("this is req files  ", req.files[0]);
-    if (!req.files.avatar || !req.files.background) {
-      return res.status(500).json({
-        status: false,
-        message: "Avatar and Background image is required",
-      });
-    }
 
     // uploading images on backend
 
@@ -39,32 +33,48 @@ const CreatePorfile = async (req, res) => {
     } else {
       // uploading avatar and backgound on cloudinary
 
-      var avatar = await cloudinary.v2.uploader.upload(
-        req.files.avatar[0].path,
-        {
-          folder: "nexusGalaxy/users/avatar",
-        }
-      );
+      var avatarObj = "";
+      var backgroundOBJ = "";
 
-      var avatarObj = {
-        url: avatar.secure_url,
-        public_id: avatar.secure_url,
-      };
+      if (!req.files.avatar || !req.files.background) {
+        avatarObj = {
+          url: "https://res.cloudinary.com/learn2code/image/upload/v1678530306/nexusGalaxy/users/avatar/avatarMen_lrka7p.png",
+          public_id: "",
+        };
+        backgroundOBJ = {
+          url: "https://res.cloudinary.com/learn2code/image/upload/v1678530325/nexusGalaxy/users/background/bg_utpugb.jpg",
+          public_id: "",
+        };
+      } else {
+        // this is avatar upload setting
+        var avatar = await cloudinary.v2.uploader.upload(
+          req.files.avatar[0].path,
+          {
+            folder: "nexusGalaxy/users/avatar",
+          }
+        );
 
-      var background = await cloudinary.v2.uploader.upload(
-        req.files.background[0].path,
-        {
-          folder: "nexusGalaxy/users/background",
-        }
-      );
+        var background = await cloudinary.v2.uploader.upload(
+          req.files.background[0].path,
+          {
+            folder: "nexusGalaxy/users/background",
+          }
+        );
 
-      // console.log(background);
+        avatarObj = {
+          url: avatar.secure_url,
+          public_id: avatar.secure_url,
+        };
 
-      var backgroundOBJ = {
-        url: background.secure_url,
-        public_id: background.secure_url,
-      };
+        // console.log(background);
 
+        backgroundOBJ = {
+          url: background.secure_url,
+          public_id: background.secure_url,
+        };
+      }
+
+      // creating new User
       var newuser = await new UserModels({
         address: body.address.toLowerCase(),
         firstName: body.firstName,
@@ -77,11 +87,14 @@ const CreatePorfile = async (req, res) => {
         instagram: body.instagram,
       });
 
+      // console.log(newuser);
       await newuser.save();
 
-      return res
-        .status(200)
-        .json({ status: true, message: "Sucessfully Registered" });
+      // return res
+      //   .status(200)
+      //   .json({ status: true, message: "Sucessfully Registered" });
+
+      await login(req, res);
     }
   } catch (error) {
     console.log("this si file", error);

@@ -1,5 +1,5 @@
 const CollectionModel = require("../models/collection");
-
+const userModal = require("../models/user");
 const cloudinary = require("../config/cloudinary");
 
 // =================================
@@ -15,21 +15,69 @@ exports.createCollection = async (req, res) => {
       return res.status(500).json({ msg: "avatar and background required" });
     }
 
-    //
+    // console.log("this is collection");
+
+    var collectionName = req.body.name;
+    collectionName = collectionName.toLowerCase();
+    var collections = await CollectionModel.findOne({
+      name: req.body.name,
+    });
+
+    if (collections) {
+      return res
+        .status(200)
+        .json({ status: false, msg: "collection already exist" });
+    }
+
+    // uploading avatar
+    var avatar = await cloudinary.v2.uploader.upload(
+      req.files.background[0].path,
+      {
+        folder: "nexusGalaxy/collections/avatar",
+      }
+    );
+
+    var avatarObj = {
+      url: avatar.secure_url,
+      public_id: avatar.secure_url,
+    };
+
+    var background = await cloudinary.v2.uploader.upload(
+      req.files.background[0].path,
+      {
+        folder: "nexusGalaxy/collections/background",
+      }
+    );
+
+    var backgroundOBJ = {
+      url: background.secure_url,
+      public_id: background.secure_url,
+    };
+
+    var user = await userModal.findOne({ address: req.user.address });
 
     // creating collections
     var newCollection = await new CollectionModel({
-      name: req.body.name,
-      owner: req.user.address,
-      avatar: "",
-      background: "",
+      name: collectionName,
+      owner: user._id,
+      avatar: avatarObj,
+      background: backgroundOBJ,
       description: req.body.description,
       externalUrl: req.body.externalUrl,
       category: req.body.category,
       // tokens: body.token,
     });
 
-    // await newCollection.save();
+    console.log("this i user", user);
+    await user.Collections.push(newCollection._id);
+
+    console.log("Collections", user.Collections);
+
+    console.log("this is response", user);
+    await newCollection.save();
+    await user.save();
+
+    // return data with status
     return res
       .status(200)
       .json({ status: true, message: "Successfully Collection added!" });

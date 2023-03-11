@@ -5,8 +5,8 @@ var Schema = mongoose.Schema;
 var CollectionSchema = new Schema(
   {
     name: { type: String, required: true },
-    avatar: { type: String },
-    background: { type: String },
+    avatar: { type: Object },
+    background: { type: Object },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
