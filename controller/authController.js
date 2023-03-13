@@ -234,9 +234,7 @@ const login = async (req, res) => {
 
 const getLoggedInUser = async (req, res) => {
   try {
-    let data = await UserModels.findOne({
-      _id: req.user._id,
-    }).exec();
+    var data = await UserModels.findOne({ _id: req.user._id });
     console.log("this is respnse", data);
     if (!data) {
       res.status(401).json({ success: false, msg: "not authorized User" });
