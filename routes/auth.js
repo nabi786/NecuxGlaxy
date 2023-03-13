@@ -61,6 +61,8 @@ router
 // login user
 router.route("/login").post(AuthController.login);
 
+router.route("/dash").get(auth, AuthController.getLoggedInUser);
+
 //  search data
 // router.route("/search").post(SearchController.search);
 

@@ -230,6 +230,28 @@ const login = async (req, res) => {
 
 // module.export {userOBj}
 
-const userOBj = { CreatePorfile, updateProfile, login };
+// get current User
+
+const getLoggedInUser = async (req, res) => {
+  try {
+    let data = await UserModels.findOne({
+      _id: req.user._id,
+    }).exec();
+    console.log("this is respnse", data);
+    if (!data) {
+      res.status(401).json({ success: false, msg: "not authorized User" });
+    } else {
+      res
+        .status(200)
+        .json({ status: true, message: "Login Successfully", data: data });
+    }
+  } catch (err) {
+    return res
+      .status(200)
+      .json({ status: true, message: "something went wrong in server" });
+  }
+};
+
+const userOBj = { CreatePorfile, updateProfile, login, getLoggedInUser };
 
 module.exports = userOBj;
