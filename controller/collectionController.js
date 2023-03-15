@@ -96,62 +96,72 @@ exports.createCollection = async (req, res) => {
 // =================================
 exports.updateCollection = async (req, res) => {
   try {
-    var collections = await CollectionModel.findOne({ _id: req.body.id });
-    console.log(collections);
+    if (!req.files.avatar || !req.files.background) {
+      return res.status(404).json({
+        status: false,
+        message: "Avatar and Background image is required",
+      });
+    }
+
+    var currentUser = await userModal.findOne({ address: req.user.address });
+    var collections = await CollectionModel.findOne({
+      _id: req.body.id,
+    }).populate({ path: "owner" });
+
     if (collections == null) {
       return res
         .status(404)
         .json({ success: true, msg: "no collection found" });
     } else {
-      if (!req.files.avatar || !req.files.background) {
+      if (currentUser.address === collections.owner.address) {
+        // destroying the images on cloudinary
+        await cloudinary.v2.uploader.destroy(collections.avatar.public_id);
+        await cloudinary.v2.uploader.destroy(collections.background.public_id);
+
+        // uploading Avatar
+        var avatar = await cloudinary.v2.uploader.upload(
+          req.files.avatar[0].path,
+          {
+            folder: "nexusGalaxy/collections/avatar",
+          }
+        );
+
+        // uploading Background
+        var background = await cloudinary.v2.uploader.upload(
+          req.files.background[0].path,
+          {
+            folder: "nexusGalaxy/collections/background",
+          }
+        );
+
+        var avatarObj = {
+          url: avatar.secure_url,
+          public_id: avatar.public_id,
+        };
+
+        var backgroundOBJ = {
+          url: background.secure_url,
+          public_id: background.public_id,
+        };
+
+        Object.assign(req.body, { background: backgroundOBJ });
+        Object.assign(req.body, { avatar: avatarObj });
+
+        // upading the collection
+        await CollectionModel.findOneAndUpdate(
+          { _id: req.body.id },
+          req.body
+        ).exec();
+
+        return res
+          .status(200)
+          .json({ success: true, msg: "collection udpated successfully" });
+      } else {
         return res.status(404).json({
-          status: false,
-          message: "Avatar and Background image is required",
+          success: true,
+          msg: "invalid authorization for this collection",
         });
       }
-
-      // destroying the images on cloudinary
-      await cloudinary.v2.uploader.destroy(collections.avatar.public_id);
-      await cloudinary.v2.uploader.destroy(collections.background.public_id);
-
-      // uploading Avatar
-      var avatar = await cloudinary.v2.uploader.upload(
-        req.files.avatar[0].path,
-        {
-          folder: "nexusGalaxy/collections/avatar",
-        }
-      );
-
-      // uploading Background
-      var background = await cloudinary.v2.uploader.upload(
-        req.files.background[0].path,
-        {
-          folder: "nexusGalaxy/collections/background",
-        }
-      );
-
-      var avatarObj = {
-        url: avatar.secure_url,
-        public_id: avatar.public_id,
-      };
-
-      var backgroundOBJ = {
-        url: background.secure_url,
-        public_id: background.public_id,
-      };
-
-      Object.assign(req.body, { background: backgroundOBJ });
-      Object.assign(req.body, { avatar: avatarObj });
-
-      // upading the collection
-      await CollectionModel.findOneAndUpdate(
-        { _id: req.body.id },
-        req.body
-      ).exec();
-
-      return res
-        .status(200)
-        .json({ success: true, msg: "collection udpated successfully" });
     }
   } catch (error) {
     return res
