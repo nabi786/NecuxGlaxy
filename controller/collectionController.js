@@ -68,10 +68,7 @@ exports.createCollection = async (req, res) => {
       // tokens: body.token,
     });
 
-    console.log("this i user", user);
     await user.Collections.push(newCollection._id);
-
-    console.log("Collections", user.Collections);
 
     // console.log("this is response", user);
     await newCollection.save();

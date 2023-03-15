@@ -122,7 +122,7 @@ const updateProfile = async (req, res) => {
       });
     } else {
       var user = await UserModels.findOne({ _id: req.user._id });
-
+      // console.log("this is user ID", user);
       if (user != null) {
         // deleeting images from cloudinary
         if (user.avatar.public_id != "" && user.background.public_id != "") {
@@ -234,8 +234,10 @@ const login = async (req, res) => {
 
 const getLoggedInUser = async (req, res) => {
   try {
-    var data = await UserModels.findOne({ _id: req.user._id });
-    console.log("this is respnse", data);
+    var data = await UserModels.findOne({ _id: req.user._id }).populate({
+      path: "Collections",
+    });
+    // console.log("this is respnse", data);
     if (!data) {
       res.status(401).json({ success: false, msg: "not authorized User" });
     } else {
@@ -244,6 +246,7 @@ const getLoggedInUser = async (req, res) => {
         .json({ status: true, message: "Login Successfully", data: data });
     }
   } catch (err) {
+    console.log("err", err);
     return res
       .status(200)
       .json({ status: true, message: "something went wrong in server" });
