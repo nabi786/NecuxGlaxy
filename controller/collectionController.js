@@ -569,22 +569,36 @@ exports.getALL = async (req, res) => {
     if (!req.body.size || !req.body.page) {
       res.status(404).json({ success: false, msg: "invalid size or pages" });
     }
-    var collectionsData = await CollectionModel.find();
+    var collectionsData = await CollectionModel.find().populate({
+      path: "owner",
+    });
     console.log(collectionsData.length);
     if (collectionsData.length > 0) {
-      let collections = await CollectionModel.find()
-        .populate({ path: "owner" })
-        .skip((parseInt(req.body.page) - 1) * parseInt(req.body.size))
-        .limit(parseInt(req.body.size))
-        .lean()
-        .exec();
-      let totalPage = Math.ceil(
-        collectionsData.length / parseInt(req.body.size)
+      var itemPerPage = req.body.size;
+      var pageNum = req.body.page;
+
+      // how many Pages
+      var totalPage = Math.ceil(collectionsData.length / itemPerPage);
+
+      // make Pagination
+      function paginate(array, page_size, page_number) {
+        // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+        return array.slice(
+          (page_number - 1) * page_size,
+          page_number * page_size
+        );
+      }
+
+      var collectionsList = await paginate(
+        collectionsData,
+        itemPerPage,
+        pageNum
       );
+
       res.status(200).json({
         status: true,
         totalPage,
-        data: collections,
+        data: collectionsList,
       });
     } else {
       res.status(404).json({ success: false, msg: "no data found" });
