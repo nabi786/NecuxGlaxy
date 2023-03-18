@@ -30,16 +30,13 @@ exports.createCollection = async (req, res) => {
     }
 
     // uploading avatar
-    var avatar = await cloudinary.v2.uploader.upload(
-      req.files.background[0].path,
-      {
-        folder: "nexusGalaxy/collections/avatar",
-      }
-    );
+    var avatar = await cloudinary.v2.uploader.upload(req.files.avatar[0].path, {
+      folder: "nexusGalaxy/collections/avatar",
+    });
 
     var avatarObj = {
       url: avatar.secure_url,
-      public_id: avatar.secure_url,
+      public_id: avatar.public_id,
     };
 
     var background = await cloudinary.v2.uploader.upload(
@@ -51,7 +48,7 @@ exports.createCollection = async (req, res) => {
 
     var backgroundOBJ = {
       url: background.secure_url,
-      public_id: background.secure_url,
+      public_id: background.public_id,
     };
 
     var user = await userModal.findOne({ address: req.user.address });
@@ -197,10 +194,10 @@ exports.deleteCollection = async (req, res) => {
       await cloudinary.v2.uploader.destroy(collection.avatar.public_id);
       await cloudinary.v2.uploader.destroy(collection.background.public_id);
 
-      await CollectionModel.findByIdAndDelete({ _id: req.body.id }).exec();
+      // await CollectionModel.findByIdAndDelete({ _id: req.body.id }).exec();
       return res
         .status(200)
-        .json({ status: true, message: "Sucessfully deleted" });
+        .json({ status: true, message: "Collection Sucessfully deleted" });
     }
   } catch (error) {
     return res
@@ -218,7 +215,8 @@ exports.deleteCollection = async (req, res) => {
 // =================================
 exports.getSingleCollection = async (req, res) => {
   try {
-    const collection = await CollectionModel.findOne(req.body.filter)
+    const collection = await CollectionModel.findOne({ _id: req.body.id })
+      .populate({ path: "owner" })
       .lean()
       .exec();
     return res.status(200).json({ status: true, data: collection });
@@ -369,14 +367,45 @@ exports.getAllCollectionWRTNewest = async (req, res) => {
 //
 //
 // =================================
-exports.myCollections = async (req, res) => {
+exports.CollectionByAddress = async (req, res) => {
   try {
-    const collections = await CollectionModel.find({ owner: req.user.address })
-      .lean()
-      .exec();
-    return res
-      .status(200)
-      .json({ status: true, message: "Success!", data: collections });
+    var adr = req.body.address.toLowerCase();
+    const user = await userModal
+      .findOne({
+        address: adr,
+      })
+      .populate({ path: "Collections" });
+
+    var itemPerPage = req.body.size;
+    var pageNum = req.body.page;
+
+    // console.log(user);
+    if (user != null) {
+      var collections = user.Collections;
+
+      var totalPages = Math.ceil(collections.length / itemPerPage);
+      // function to get pagination
+      function paginate(array, page_size, page_number) {
+        // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+        return array.slice(
+          (page_number - 1) * page_size,
+          page_number * page_size
+        );
+      }
+
+      var collectionsList = await paginate(collections, itemPerPage, pageNum);
+
+      return res.status(200).json({
+        status: true,
+        message: "Success!",
+        totalPages,
+        data: collectionsList,
+      });
+    } else {
+      return res
+        .status(200)
+        .json({ status: true, message: "Success!", data: user });
+    }
   } catch (error) {
     res
       .status(500)
@@ -529,5 +558,37 @@ exports.leastLikedCollection = async (req, res) => {
       message: "Some thing went wrong",
       error: error.message,
     });
+  }
+};
+
+//
+
+exports.getALL = async (req, res) => {
+  try {
+    if (!req.body.size || !req.body.page) {
+      res.status(404).json({ success: false, msg: "invalid size or pages" });
+    }
+    var collectionsData = await CollectionModel.find();
+    console.log(collectionsData.length);
+    if (collectionsData.length > 0) {
+      let collections = await CollectionModel.find()
+        .skip((parseInt(req.body.page) - 1) * parseInt(req.body.size))
+        .limit(parseInt(req.body.size))
+        .lean()
+        .exec();
+      let totalPage = Math.ceil(
+        collectionsData.length / parseInt(req.body.size)
+      );
+      res.status(200).json({
+        status: true,
+        totalPage,
+        data: collections,
+      });
+    } else {
+      res.status(404).json({ success: false, msg: "no data found" });
+    }
+  } catch (err) {
+    console.log("this is any error", err);
+    res.status(500).json({ success: false, msg: "something went wrong" });
   }
 };

@@ -1,4 +1,5 @@
 const UserModels = require("../models/user");
+const collectionModal = require("../models/collection");
 const jwt = require("jsonwebtoken");
 
 const cloudinary = require("../config/cloudinary");
@@ -248,11 +249,49 @@ const getLoggedInUser = async (req, res) => {
   } catch (err) {
     console.log("err", err);
     return res
-      .status(200)
-      .json({ status: true, message: "something went wrong in server" });
+      .status(500)
+      .json({ status: false, message: "something went wrong in server" });
   }
 };
 
-const userOBj = { CreatePorfile, updateProfile, login, getLoggedInUser };
+// add LIkes to NFTs OR Collections
+
+const addLikes = async (req, res) => {
+  try {
+    var speficID = req.params.likeTo;
+
+    var currentUser = await UserModels.findOne({ address: req.user.address });
+
+    if (currentUser != null) {
+      var findCollection = await collectionModal.findOne({ _id: speficID });
+
+      findCollection.likedAddress.push(currentUser._id);
+      findCollection.likes += Number(findCollection.likes) + 1;
+
+      findCollection.save();
+      res
+        .status(200)
+        .json({ status: true, message: "Like Added Successsfully" });
+    } else {
+      res.status(404).json({ status: false, message: "user not found" });
+    }
+  } catch (err) {
+    console.log("err", err);
+    res
+      .status(500)
+      .json({ status: false, message: "something went wrong in server" });
+    return res
+      .status(500)
+      .json({ status: false, message: "something went wrong in server" });
+  }
+};
+
+const userOBj = {
+  CreatePorfile,
+  updateProfile,
+  login,
+  getLoggedInUser,
+  addLikes,
+};
 
 module.exports = userOBj;

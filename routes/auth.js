@@ -66,4 +66,8 @@ router.route("/dash").get(auth, AuthController.getLoggedInUser);
 //  search data
 // router.route("/search").post(SearchController.search);
 
+// add Liks
+
+router.get("/addLike/:likeTo", auth, AuthController.addLikes);
+
 module.exports = router;
