@@ -300,6 +300,7 @@ exports.getALLCollectionWRTOldest = async (req, res) => {
         .json({ status: false, message: "Collection Not Found" });
     } else {
       let filterData = await CollectionModel.find()
+        .populate({ path: "owner" })
         .sort({ createdAt: 1 })
         .skip((parseInt(req.body.page) - 1) * parseInt(req.body.size))
         .limit(parseInt(req.body.size))
@@ -572,6 +573,7 @@ exports.getALL = async (req, res) => {
     console.log(collectionsData.length);
     if (collectionsData.length > 0) {
       let collections = await CollectionModel.find()
+        .populate({ path: "owner" })
         .skip((parseInt(req.body.page) - 1) * parseInt(req.body.size))
         .limit(parseInt(req.body.size))
         .lean()
