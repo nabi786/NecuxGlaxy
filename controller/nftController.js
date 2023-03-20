@@ -24,6 +24,8 @@ exports.nftCreate = async (req, res) => {
       });
     } else {
       var user = await UserModel.findOne({ address: String(req.user.address) });
+      console.log("this is tokenAddress", req.body.tokenAddress);
+      console.log("this is tokenAddress", req.body.tokenId);
       var newNFT = await new NFTModel({
         name: req.body.name,
         tokenAddress: req.body.tokenAddress,
@@ -52,7 +54,7 @@ exports.nftCreate = async (req, res) => {
     }
     return res
       .status(200)
-      .json({ status: false, message: "Sucessfully created" });
+      .json({ status: true, message: "Sucessfully created" });
   } catch (error) {
     console.log("this is err", error);
     return res
