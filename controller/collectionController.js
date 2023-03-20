@@ -375,7 +375,7 @@ exports.CollectionByAddress = async (req, res) => {
       .findOne({
         address: adr,
       })
-      .populate({ path: "Collections" });
+      .populate({ path: "Collections", populate: { path: "owner" } });
 
     var itemPerPage = req.body.size;
     var pageNum = req.body.page;
