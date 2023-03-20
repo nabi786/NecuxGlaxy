@@ -194,10 +194,28 @@ exports.deleteCollection = async (req, res) => {
       await cloudinary.v2.uploader.destroy(collection.avatar.public_id);
       await cloudinary.v2.uploader.destroy(collection.background.public_id);
 
-      // await CollectionModel.findByIdAndDelete({ _id: req.body.id }).exec();
-      return res
-        .status(200)
-        .json({ status: true, message: "Collection Sucessfully deleted" });
+      var currentUser = await userModal.findOne({ address: req.user.address });
+
+      var collectionAry = currentUser.Collections;
+
+      var findIndex = collectionAry.indexOf(req.body.id);
+      if (findIndex == -1) {
+        return res.status(404).json({
+          status: false,
+          message: "collectiona already Deleted",
+        });
+      } else {
+        console.log("collectionAry findIndex", findIndex);
+        collectionAry.splice(findIndex, 1);
+        currentUser.Collections = collectionAry;
+        await currentUser.save();
+
+        await CollectionModel.findByIdAndDelete({ _id: req.body.id }).exec();
+
+        return res
+          .status(200)
+          .json({ status: true, message: "Collection Sucessfully deleted" });
+      }
     }
   } catch (error) {
     return res
