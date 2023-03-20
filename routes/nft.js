@@ -30,7 +30,7 @@ const upload = multer({ storage: storage, fileFilter: fileFilter }).single(
 );
 
 // create nfts
-router.route("/create").post(upload, auth, NFTController.nftCreate);
+router.route("/create").post(auth, NFTController.nftCreate);
 // updated nft
 router.route("/update").post(upload, auth, NFTController.nftUpdate);
 // delete Nft

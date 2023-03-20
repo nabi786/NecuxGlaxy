@@ -1,5 +1,6 @@
 const NFTModel = require("../models/nft");
 const UserModel = require("../models/user");
+const collectionModal = require("../models/collection");
 const cloudinary = require("../config/cloudinary");
 // =================================
 //
@@ -13,7 +14,6 @@ exports.nftCreate = async (req, res) => {
     // console.log("this i file", req.file);
     let exist = await NFTModel.findOne({
       tokenId: String(req.body.tokenId),
-      tokenAddress: req.body.tokenAddress.toLowerCase(),
     })
       .lean()
       .exec();
@@ -23,18 +23,13 @@ exports.nftCreate = async (req, res) => {
         message: "This Token ID and token Address is already exists",
       });
     } else {
-      var result = await cloudinary.v2.uploader.upload(req.file.path, {
-        folder: "nexusGalaxy/nft",
-      });
-
-      var imgOBj = { url: result.secure_url, public_id: result.public_id };
-
+      var user = await UserModel.findOne({ address: String(req.user.address) });
       var newNFT = await new NFTModel({
         name: req.body.name,
-        tokenAddress: req.body.tokenAddress.toLowerCase(),
+        tokenAddress: req.body.tokenAddress,
         tokenId: req.body.tokenId,
-        image: imgOBj,
-        owner: req.user.address,
+        image: req.body.image,
+        owner: user._id,
         selectedCat: req.body.selectedCategory,
         tokenUri: req.body.tokenUri,
         externalLink: req.body.externalLink,
@@ -47,7 +42,6 @@ exports.nftCreate = async (req, res) => {
       // console.log(newNFT);
 
       // console.log("this is owner");
-      var user = await UserModel.findOne({ address: String(req.user.address) });
       user.Nfts.push(newNFT._id);
 
       // saving new nft
