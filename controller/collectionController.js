@@ -62,7 +62,6 @@ exports.createCollection = async (req, res) => {
       description: req.body.description,
       externalUrl: req.body.externalUrl,
       category: req.body.category,
-      // tokens: body.token,
     });
 
     await user.Collections.push(newCollection._id);
@@ -441,16 +440,39 @@ exports.CollectionByAddress = async (req, res) => {
 // =================================
 exports.myLikedCollections = async (req, res) => {
   try {
-    var data = await CollectionModel.find({
-      likedAddress: req.user.address.toLowerCase(),
-    })
-      .lean()
-      .exec();
-    return res.status(200).json({
-      status: true,
-      message: "You have like " + data.length + " Collections",
-      data,
-    });
+    var User = await userModal
+      .findOne({ address: req.user.address })
+      .populate({ path: "MylikedCollection" });
+
+    if (User) {
+      var LikedCollections = User.MylikedCollection;
+
+      var page_size = req.body.size;
+      var page_number = req.body.page_number;
+
+      var totalPage = Math.ceil(LikedCollections.length / page_size);
+      // making Pagination
+      function paginate(array, page_size, page_number) {
+        // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+        return array.slice(
+          (page_number - 1) * page_size,
+          page_number * page_size
+        );
+      }
+
+      var collections = await paginate(
+        LikedCollections,
+        page_size,
+        page_number
+      );
+
+      res.status(200).json({
+        totalPage,
+        data: collections,
+      });
+    } else {
+      res.status(404).json({ msg: "user not found" });
+    }
   } catch (err) {
     return res
       .status(500)
@@ -467,36 +489,43 @@ exports.myLikedCollections = async (req, res) => {
 // =================================
 exports.addLike = async function (req, res) {
   try {
-    const collection = await CollectionModel.findOne({
+    const n = await CollectionModel.findOne({
       _id: req.body.id,
-    }).exec();
-    if (collection) {
-      if (
-        collection.likedAddress.length > 0 &&
-        collection.likedAddress.filter((x) => x == req.user.address).length > 0
-      ) {
-        let likeCount = collection.likes - 1;
-        await CollectionModel.findOneAndUpdate(
-          { _id: req.body.id },
-          { likes: likeCount, $pull: { likedAddress: req.user.address } }
-        ).exec();
-        return res
-          .status(200)
-          .json({ status: true, message: "You disliked this Collection" });
+    });
+
+    var CurrentUser = await userModal.findOne({ address: req.user.address });
+
+    var findCollection = await CollectionModel.findOne({ _id: req.body.id });
+    console.log("this is colelction", findCollection);
+    if (findCollection) {
+      var likes = findCollection.Likes;
+      var findIndex = likes.indexOf(CurrentUser._id);
+
+      if (findIndex == -1) {
+        likes.push(CurrentUser._id);
+        CurrentUser.MylikedCollection.push(findCollection._id);
+
+        await findCollection.save();
+        await CurrentUser.save();
+        res.status(200).json({ success: true, msg: "Like Added Successfully" });
       } else {
-        let likeCount = collection.likes + 1;
-        await CollectionModel.findOneAndUpdate(
-          { email: req.user.email, org: req.user.org },
-          { likes: likeCount, $push: { likedAddress: req.user.address } }
-        ).exec();
-        return res
+        likes.splice(findIndex, 1);
+        findCollection.Likes = likes;
+        var findIndexOfCollectionInUser = CurrentUser.MylikedCollection.indexOf(
+          CurrentUser._id
+        );
+
+        CurrentUser.MylikedCollection.splice(findIndexOfCollectionInUser, 1);
+
+        await findCollection.save();
+
+        await CurrentUser.save();
+        res
           .status(200)
-          .json({ status: true, message: "You liked this Collection" });
+          .json({ success: true, msg: "Like removed Successfully" });
       }
     } else {
-      return res
-        .status(500)
-        .json({ status: false, message: "Collection Not found" });
+      res.status(404).json({ success: false, msg: "no collection found" });
     }
   } catch (err) {
     console.log(err);

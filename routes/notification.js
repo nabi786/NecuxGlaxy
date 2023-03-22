@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const noti_OBj = require("../controller/notification");
+const noti_OBj = require("../controller/adminControl/notification");
 const auth = require("../middleware/auth");
 
 // post method update  notification

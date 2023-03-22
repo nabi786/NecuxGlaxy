@@ -56,17 +56,23 @@ router
   .route("/CollectionByAddress")
   .post(CollectionController.CollectionByAddress);
 
+// add Like to Collection
+router.route("/like").post(auth, CollectionController.addLike);
 // My Liked NFts
-router.route("/my/like").get(auth, CollectionController.myLikedCollections);
-
 router
-  .route("/remove/nft")
-  .post(auth, CollectionController.removeNFTFromCollection);
+  .route("/my/likedCollections")
+  .post(auth, CollectionController.myLikedCollections);
+
+// router
+//   .route("/remove/nft")
+//   .post(auth, CollectionController.removeNFTFromCollection);
+
 router.route("/oldest").post(CollectionController.getALLCollectionWRTOldest);
 router.route("/newest").post(CollectionController.getAllCollectionWRTNewest);
-router.route("/like").post(auth, CollectionController.addLike);
-router.route("/like/most").post(CollectionController.mostLikedCollection);
-router.route("/like/least").post(CollectionController.leastLikedCollection);
+
+// router.route("/like/most").post(CollectionController.mostLikedCollection);
+// router.route("/like/least").post(CollectionController.leastLikedCollection);
 
 router.post("/getAllCollections", CollectionController.getALL);
+
 module.exports = router;

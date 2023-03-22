@@ -24,8 +24,8 @@ exports.nftCreate = async (req, res) => {
       });
     } else {
       var user = await UserModel.findOne({ address: String(req.user.address) });
-      console.log("this is tokenAddress", req.body.tokenAddress);
-      console.log("this is tokenAddress", req.body.tokenId);
+      console.log("this is tokenAddress", req.body);
+      // console.log("this is tokenAddress", req.bod);
       var newNFT = await new NFTModel({
         name: req.body.name,
         tokenAddress: req.body.tokenAddress,
@@ -41,9 +41,6 @@ exports.nftCreate = async (req, res) => {
         royality: req.body.royality,
       });
 
-      // console.log(newNFT);
-
-      // console.log("this is owner");
       user.Nfts.push(newNFT._id);
 
       // saving new nft

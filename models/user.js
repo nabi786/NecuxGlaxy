@@ -30,6 +30,12 @@ const userSchema = new mongoose.Schema(
         ref: "collection",
       },
     ],
+    MylikedCollection: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "collection",
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -15,11 +15,12 @@ var CollectionSchema = new Schema(
     externalUrl: { type: String },
     isVerified: { type: Boolean },
     category: { type: String },
-    likes: { type: Number, default: 0 },
-    likedAddress: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "user",
-    },
+    Likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+      },
+    ],
     Nfts: [
       {
         type: mongoose.Schema.Types.ObjectId,
