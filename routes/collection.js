@@ -75,4 +75,10 @@ router.route("/newest").post(CollectionController.getAllCollectionWRTNewest);
 
 router.post("/getAllCollections", CollectionController.getALL);
 
+// get All collection by category ID
+router.post(
+  "/getAllCollectionByCategory",
+  CollectionController.getAllCollectionByCategory
+);
+
 module.exports = router;

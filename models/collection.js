@@ -14,7 +14,10 @@ var CollectionSchema = new Schema(
     description: { type: String },
     externalUrl: { type: String },
     isVerified: { type: Boolean },
-    category: { type: String },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "category",
+    },
     Likes: [
       {
         type: mongoose.Schema.Types.ObjectId,

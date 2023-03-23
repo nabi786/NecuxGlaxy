@@ -1,6 +1,7 @@
 const CollectionModel = require("../models/collection");
 const userModal = require("../models/user");
 const cloudinary = require("../config/cloudinary");
+const categoryModal = require("../models/category");
 
 // =================================
 //
@@ -52,6 +53,13 @@ exports.createCollection = async (req, res) => {
     };
 
     var user = await userModal.findOne({ address: req.user.address });
+    // console.log(user)
+    var category = await categoryModal.findOne({ _id: req.body.categoryID });
+    if (!category) {
+      return res
+        .status(404)
+        .json({ status: false, message: "invalid categoryID" });
+    }
 
     // creating collections
     var newCollection = await new CollectionModel({
@@ -61,20 +69,22 @@ exports.createCollection = async (req, res) => {
       background: backgroundOBJ,
       description: req.body.description,
       externalUrl: req.body.externalUrl,
-      category: req.body.category,
+      category: category._id,
     });
-
-    await user.Collections.push(newCollection._id);
-
+    console.log(newCollection);
+    user.Collections.push(newCollection._id);
+    category.Collections.push(newCollection._id);
     // console.log("this is response", user);
     await newCollection.save();
     await user.save();
+    await category.save();
 
     // return data with status
     return res
       .status(200)
       .json({ status: true, message: "Successfully Collection added!" });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       status: false,
       message: "Some thing went wrong",
@@ -194,6 +204,7 @@ exports.deleteCollection = async (req, res) => {
       await cloudinary.v2.uploader.destroy(collection.background.public_id);
 
       var currentUser = await userModal.findOne({ address: req.user.address });
+      var category = await categoryModal.findOne({ _id: collection.category });
 
       var collectionAry = currentUser.Collections;
 
@@ -207,8 +218,12 @@ exports.deleteCollection = async (req, res) => {
         console.log("collectionAry findIndex", findIndex);
         collectionAry.splice(findIndex, 1);
         currentUser.Collections = collectionAry;
-        await currentUser.save();
+        var catIndex = category.Collections.indexOf(collection._id);
 
+        category.Collections.splice(catIndex, 1);
+
+        await currentUser.save();
+        await category.save();
         await CollectionModel.findByIdAndDelete({ _id: req.body.id }).exec();
 
         return res
@@ -489,10 +504,6 @@ exports.myLikedCollections = async (req, res) => {
 // =================================
 exports.addLike = async function (req, res) {
   try {
-    const n = await CollectionModel.findOne({
-      _id: req.body.id,
-    });
-
     var CurrentUser = await userModal.findOne({ address: req.user.address });
 
     var findCollection = await CollectionModel.findOne({ _id: req.body.id });
@@ -653,5 +664,40 @@ exports.getALL = async (req, res) => {
   } catch (err) {
     console.log("this is any error", err);
     res.status(500).json({ success: false, msg: "something went wrong" });
+  }
+};
+
+// get collection by Category
+
+exports.getAllCollectionByCategory = async (req, res) => {
+  try {
+    var category = await categoryModal
+      .findOne({ _id: req.body.catID })
+      .populate({ path: "Collections" });
+    if (category) {
+      var collections = category.Collections;
+
+      var page_size = req.body.size;
+      // function to get pagination
+      var page_number = req.body.page;
+      var totalPages = Math.ceil(collections.length / page_size);
+
+      function paginate(array, page_size, page_number) {
+        // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+        return array.slice(
+          (page_number - 1) * page_size,
+          page_number * page_size
+        );
+      }
+
+      var data = await paginate(collections, page_size, page_number);
+      return res.status(200).json({ success: true, totalPages, data: data });
+    } else {
+      return res.status(404).json({ success: false, msg: "no data found" });
+    }
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ success: false, msg: "something went wrong" });
   }
 };
