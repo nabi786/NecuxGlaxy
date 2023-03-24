@@ -7,7 +7,11 @@ router.post("/create", auth, adminControl.createCategory);
 
 router.get("/getAllCategories", adminControl.getAllCategories);
 
-// login Admin
+// delete Category
+router.post("/deleteCategory", auth, adminControl.deteCategory);
+
+// update Category
+router.post("/updateCategory", auth, adminControl.updateCategory);
 
 // exporting Moduel
 module.exports = router;

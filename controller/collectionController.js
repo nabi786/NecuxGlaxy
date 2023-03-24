@@ -668,7 +668,6 @@ exports.getALL = async (req, res) => {
 };
 
 // get collection by Category
-
 exports.getAllCollectionByCategory = async (req, res) => {
   try {
     var category = await categoryModal

@@ -47,3 +47,52 @@ exports.getAllCategories = async (req, res) => {
     res.status(500).json({ success: false, msg: "something went wrong" });
   }
 };
+
+// delete Category
+exports.deteCategory = async (req, res) => {
+  try {
+    var admin = await adminModal.findOne({ walletAddress: req.user.address });
+    if (admin) {
+      var category = await categoryModal.findOne({ _id: req.body.id });
+
+      if (category) {
+        await categoryModal.findOneAndDelete({ _id: req.body.id });
+        res
+          .status(200)
+          .json({ success: true, msg: "category deleted Successfully" });
+      } else {
+        res
+          .status(404)
+          .json({ success: false, msg: "category already deleted" });
+      }
+    } else {
+      res.status(404).json({ success: false, msg: "not authorized" });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, msg: "something went wrong" });
+  }
+};
+
+// update category
+
+exports.updateCategory = async (req, res) => {
+  try {
+    var admin = await adminModal.findOne({ walletAddress: req.user.address });
+    if (admin) {
+      var category = await categoryModal.findOne({ _id: req.body.id });
+
+      if (category) {
+        await categoryModal.findOneAndUpdate({ _id: req.body.id }, req.body);
+        res
+          .status(200)
+          .json({ success: true, msg: "category updated Successfully" });
+      } else {
+        res.status(404).json({ success: false, msg: "no category found" });
+      }
+    } else {
+      res.status(404).json({ success: false, msg: "not authorized" });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, msg: "something went wrong" });
+  }
+};
