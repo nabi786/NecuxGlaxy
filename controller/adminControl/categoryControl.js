@@ -39,7 +39,7 @@ exports.getAllCategories = async (req, res) => {
     var categories = await categoryModal.find({});
 
     if (categories) {
-      res.status(200).json({ success: false, data: categories });
+      res.status(200).json({ success: true, data: categories });
     } else {
       res.status(404).json({ success: false, msg: "no data found" });
     }
