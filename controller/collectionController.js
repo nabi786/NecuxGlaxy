@@ -402,6 +402,11 @@ exports.getAllCollectionWRTNewest = async (req, res) => {
 // =================================
 exports.CollectionByAddress = async (req, res) => {
   try {
+    if (!req.body.size || !req.body.page) {
+      return res
+        .status(404)
+        .json({ status: false, message: "invalid page or size", data: [] });
+    }
     var adr = req.body.address.toLowerCase();
     const user = await userModal
       .findOne({
@@ -414,6 +419,13 @@ exports.CollectionByAddress = async (req, res) => {
 
     // console.log(user);
     if (user != null) {
+      // get all collecction by *
+      if (req.body.size == "*" && req.body.page == "*") {
+        return res
+          .status(200)
+          .json({ status: true, message: "Success!", data: user.Collections });
+      }
+
       var collections = user.Collections;
 
       var totalPages = Math.ceil(collections.length / itemPerPage);
@@ -435,9 +447,11 @@ exports.CollectionByAddress = async (req, res) => {
         data: collectionsList,
       });
     } else {
-      return res
-        .status(200)
-        .json({ status: true, message: "Success!", data: user });
+      return res.status(404).json({
+        status: false,
+        message: "no user found with this address",
+        data: [],
+      });
     }
   } catch (error) {
     res
