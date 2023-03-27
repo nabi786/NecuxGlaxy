@@ -1,8 +1,6 @@
 var mongoose = require("mongoose");
 
-var Schema = mongoose.Schema;
-
-var NFTSchema = new Schema(
+var NFTSchema = new mongoose.Schema(
   {
     tokenAddress: { type: String, required: true },
     tokenId: { type: String, required: true },
@@ -11,15 +9,15 @@ var NFTSchema = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
     },
+    collections: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "collection",
+    },
     image: { type: Object },
     name: { type: String },
     description: { type: String },
     externalLink: { type: String },
     tokenUri: { type: String },
-    collection: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "collection",
-    },
     status: { type: String },
     featured: { type: Boolean, default: false },
     chainId: { type: Number },

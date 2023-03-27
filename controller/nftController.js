@@ -24,6 +24,7 @@ exports.nftCreate = async (req, res) => {
       });
     } else {
       var user = await UserModel.findOne({ address: String(req.user.address) });
+
       console.log("this is tokenAddress", req.body);
       // console.log("this is tokenAddress", req.bod);
       var newNFT = await new NFTModel({
@@ -32,7 +33,7 @@ exports.nftCreate = async (req, res) => {
         tokenId: req.body.tokenId,
         image: req.body.image,
         owner: user._id,
-        collection: req.body.CollectionID,
+        collections: req.body.CollectionID,
         tokenUri: req.body.tokenUri,
         externalLink: req.body.externalLink,
         description: req.body.description,
