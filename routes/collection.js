@@ -81,4 +81,10 @@ router.post(
   CollectionController.getAllCollectionByCategory
 );
 
+// get All Nfts by collectionID
+router.post(
+  "/getNftsByCollectionID",
+  CollectionController.getNftsByCollectionID
+);
+
 module.exports = router;

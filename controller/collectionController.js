@@ -714,3 +714,48 @@ exports.getAllCollectionByCategory = async (req, res) => {
       .json({ success: false, msg: "something went wrong" });
   }
 };
+
+// // // // // // / // // // / /
+//
+//
+//  Get Nfts by Collection ID
+//
+//
+// // // // // // / // // // / /
+
+exports.getNftsByCollectionID = async (req, res) => {
+  try {
+    var collection = await CollectionModel.findOne({
+      _id: req.body.id,
+    }).populate({
+      path: "Nfts",
+    });
+    console.log(collection);
+    if (!collection) {
+      return res
+        .status(404)
+        .json({ success: false, msg: "collection not found" });
+    } else {
+      var nfts = collection.Nfts;
+      var page_size = req.body.size;
+      var page_number = req.body.page;
+      var totalPages = Math.ceil(nfts.length / page_size);
+
+      var result = await paginate(nfts, page_size, page_number);
+
+      return res
+        .status(200)
+        .json({ success: true, totalPages: totalPages, data: result });
+    }
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ success: false, msg: "something went wrong", error: err });
+  }
+};
+
+// pagintaions
+function paginate(array, page_size, page_number) {
+  // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+  return array.slice((page_number - 1) * page_size, page_number * page_size);
+}
