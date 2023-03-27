@@ -42,7 +42,7 @@ router.route("/price/high").post(NFTController.highestPriceNFTs);
 // get single nft
 router.route("/single").post(NFTController.singleNFTs);
 // get nft with walletAddress
-router.route("/my").get(auth, NFTController.myNFT);
+router.route("/nftsByWltAddress").post(auth, NFTController.nftsByWltAddress);
 // get nft that liked by single user
 router.route("/my/like").get(auth, NFTController.myLikedNFT);
 // get all nfts

@@ -2,6 +2,12 @@ const NFTModel = require("../models/nft");
 const UserModel = require("../models/user");
 const collectionModal = require("../models/collection");
 const cloudinary = require("../config/cloudinary");
+
+function paginate(array, page_size, page_number) {
+  // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+  return array.slice((page_number - 1) * page_size, page_number * page_size);
+}
+
 // =================================
 //
 //
@@ -25,6 +31,9 @@ exports.nftCreate = async (req, res) => {
     } else {
       var user = await UserModel.findOne({ address: String(req.user.address) });
 
+      var collection = await collectionModal.findOne({
+        _id: req.body.CollectionID,
+      });
       console.log("this is tokenAddress", req.body);
       // console.log("this is tokenAddress", req.bod);
       var newNFT = await new NFTModel({
@@ -43,12 +52,14 @@ exports.nftCreate = async (req, res) => {
       });
 
       user.Nfts.push(newNFT._id);
+      collection.Nfts.push(newNFT._id);
 
-      // saving new nft
-      await newNFT.save();
-
+      // saving collection
+      await collection.save();
       // saving user
       await user.save();
+      // saving new nft
+      await newNFT.save();
     }
     return res
       .status(200)
@@ -239,14 +250,26 @@ exports.singleNFTs = async (req, res) => {
 //
 //
 // =================================
-exports.myNFT = async (req, res) => {
+exports.nftsByWltAddress = async (req, res) => {
   try {
-    var nftdata = await NFTModel.find({
-      owner: req.user.address.toLowerCase(),
+    console.log(req.user);
+    var user = await UserModel.findOne({ address: req.user.address }).populate({
+      path: "Nfts",
     });
-    return res
-      .status(200)
-      .json({ status: true, message: "Sucess", data: nftdata });
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "user not found" });
+    } else {
+      var nfts = user.Nfts;
+      var page_size = req.body.size;
+      var page_number = req.body.page;
+      var totalPages = Math.ceil(nfts.length / page_size);
+
+      var result = await paginate(nfts, page_size, page_number);
+
+      return res
+        .status(200)
+        .json({ success: true, totalPages: totalPages, data: result });
+    }
   } catch (err) {
     return res
       .status(500)
