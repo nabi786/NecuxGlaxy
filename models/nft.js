@@ -16,7 +16,10 @@ var NFTSchema = new Schema(
     description: { type: String },
     externalLink: { type: String },
     tokenUri: { type: String },
-    selectedCat: { type: String },
+    collection: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "collection",
+    },
     status: { type: String },
     featured: { type: Boolean, default: false },
     chainId: { type: Number },

@@ -32,7 +32,7 @@ exports.nftCreate = async (req, res) => {
         tokenId: req.body.tokenId,
         image: req.body.image,
         owner: user._id,
-        selectedCat: req.body.selectedCategory,
+        collection: req.body.CollectionID,
         tokenUri: req.body.tokenUri,
         externalLink: req.body.externalLink,
         description: req.body.description,
