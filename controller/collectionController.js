@@ -739,7 +739,6 @@ exports.getNftsByCollectionID_ChainID = async (req, res) => {
       var nfts = collection.Nfts;
       var page_size = req.body.size;
       var page_number = req.body.page;
-      var totalPages = Math.ceil(nfts.length / page_size);
 
       var filtered = [];
       nfts.forEach((item, index) => {
@@ -748,6 +747,7 @@ exports.getNftsByCollectionID_ChainID = async (req, res) => {
         }
       });
 
+      var totalPages = Math.ceil(filtered.length / page_size);
       var result = await paginate(filtered, page_size, page_number);
 
       return res
