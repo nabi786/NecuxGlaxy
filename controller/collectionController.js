@@ -723,14 +723,14 @@ exports.getAllCollectionByCategory = async (req, res) => {
 //
 // // // // // // / // // // / /
 
-exports.getNftsByCollectionID = async (req, res) => {
+exports.getNftsByCollectionID_ChainID = async (req, res) => {
   try {
     var collection = await CollectionModel.findOne({
       _id: req.body.id,
     }).populate({
       path: "Nfts",
     });
-    console.log(collection);
+    // console.log(collection);
     if (!collection) {
       return res
         .status(404)
@@ -741,7 +741,14 @@ exports.getNftsByCollectionID = async (req, res) => {
       var page_number = req.body.page;
       var totalPages = Math.ceil(nfts.length / page_size);
 
-      var result = await paginate(nfts, page_size, page_number);
+      var filtered = [];
+      nfts.forEach((item, index) => {
+        if (item.chainId === req.body.chainId) {
+          filtered.push(item);
+        }
+      });
+
+      var result = await paginate(filtered, page_size, page_number);
 
       return res
         .status(200)

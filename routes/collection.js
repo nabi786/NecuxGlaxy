@@ -84,7 +84,7 @@ router.post(
 // get All Nfts by collectionID
 router.post(
   "/getNftsByCollectionID",
-  CollectionController.getNftsByCollectionID
+  CollectionController.getNftsByCollectionID_ChainID
 );
 
 module.exports = router;
