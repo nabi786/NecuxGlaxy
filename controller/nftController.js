@@ -313,33 +313,33 @@ exports.myLikedNFT = async (req, res) => {
 // =================================
 //
 //
-// THIS FUNCTION USED TO FIND ALL NFTS
+// THIS FUNCTION USED TO FIND My NFTS
 //
 //
 // =================================
-
-exports.allNFTs = async (req, res) => {
+exports.myNfts = async (req, res) => {
   try {
-    let chainId = parseInt(req.body.chainId);
-    let count = await NFTModel.countDocuments({ chainId }).exec();
-    if (count < 1) {
-      return res.status(500).json({ status: false, message: "NFTs Not Found" });
-    } else {
-      let filterData = await NFTModel.find({ chainId })
-        .skip((parseInt(req.body.page) - 1) * parseInt(req.body.size))
-        .limit(parseInt(req.body.size))
-        .lean()
-        .exec();
-      let totalPage = Math.ceil(count / parseInt(req.body.size));
-
-      filterData.reverse();
-
-      return res.status(200).json({
-        status: true,
-        message: "All NFTs",
-        data: filterData,
-        totalPage,
-      });
+    var currentUser = await UserModel.findOne({
+      address: req.user.address,
+    }).populate({ path: "Nfts" });
+    if (currentUser) {
+      // console.log(currentUser.Nfts);
+      var nfts = currentUser.Nfts;
+      if (nfts.length >= 1) {
+        var filteredNfts = [];
+        nfts.forEach((item, index) => {
+          if (
+            item.chainId === req.body.chainId &&
+            item.isOnSell === req.body.isOnSell &&
+            item.tokenAddress === req.body.tokenAddress
+          ) {
+            filteredNfts.push(item);
+          }
+        });
+        res.status(200).json({ success: true, data: filteredNfts });
+      } else {
+        res.status(404).json({ success: false, msg: "no data found" });
+      }
     }
   } catch (error) {
     return res.status(500).json({

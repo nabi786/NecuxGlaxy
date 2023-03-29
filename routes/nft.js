@@ -46,7 +46,7 @@ router.route("/nftsByWltAddress").post(auth, NFTController.nftsByWltAddress);
 // get nft that liked by single user
 router.route("/my/like").get(auth, NFTController.myLikedNFT);
 // get all nfts
-router.route("/all").post(NFTController.allNFTs);
+router.route("/myNfts").post(auth, NFTController.myNfts);
 // get most liked nfts
 router.route("/like/most").post(NFTController.mostLikedNfts);
 // get lest like nfts
