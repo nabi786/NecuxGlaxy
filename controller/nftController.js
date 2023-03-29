@@ -232,14 +232,23 @@ exports.highestPriceNFTs = async (req, res) => {
 // =================================
 exports.singleNFTs = async (req, res) => {
   try {
-    var nftdata = await NFTModel.findOne(req.body.filter).lean().exec();
-    return res
-      .status(200)
-      .json({ status: true, message: "Sucess", data: nftdata });
+    var user = await UserModel.findOne({ address: req.user.address });
+    if (!user) {
+      return res.status(404).json({ success: false, msg: "invalid Token" });
+    } else {
+      var nftdata = await NFTModel.findOne({
+        address: req.body.address,
+        tokenId: req.body.tokenId,
+        tokenAddress: req.body.tokenAddress,
+      })
+        .populate({ path: "owner" })
+        .populate({ path: "collections" });
+      return res.status(200).json({ success: true, data: nftdata });
+    }
   } catch (err) {
     return res
       .status(500)
-      .json({ success: false, msg: "something went wrong with", error: err });
+      .json({ success: false, msg: "something went wrong with" });
   }
 };
 
