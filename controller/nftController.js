@@ -81,29 +81,78 @@ exports.nftCreate = async (req, res) => {
 // =================================
 exports.nftUpdate = async (req, res) => {
   try {
-    if (!req.body.id) {
-      return res
-        .status(500)
-        .json({ status: false, message: "ID is necessary" });
-    }
-    let exist = await NFTModel.findOne({ _id: req.body.id }).lean().exec();
-    if (!exist) {
-      return res
-        .status(500)
-        .json({ status: false, message: "This id is not exists" });
+    var nft = await NFTModel.findOne({ _id: req.body.id });
+
+    if (nft) {
+      var nft = await NFTModel.findOneAndUpdate(
+        { _id: req.body.id },
+        {
+          price: req.body.price,
+          withEther: true,
+          isOnSell: true,
+        }
+      );
+
+      res.status(200).json({ success: true, msg: "updated Successfully" });
     } else {
-      if (req.file) {
-        Object.assign(req.body, { image: req.file.filename });
-      }
-      await NFTModel.findOneAndUpdate({ _id: req.body.user }, req.body).exec();
+      res.status().json({ success: false, msg: "no nft found" });
     }
-    return res
-      .status(200)
-      .json({ status: true, message: "Sucessfully updated" });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Something went wrong", error: error.message });
+    return res.status(500).json({
+      success: false,
+      msg: "Something went wrong",
+    });
+  }
+};
+
+// // // // // // // // // // //
+//
+//
+// FUNCTION TO TRANSFER NFT
+//
+//
+// // // // // // // // // // //
+
+exports.transfer_Nft = async (req, res) => {
+  try {
+    var currentUser = await UserModel.findOne({ address: req.user.address });
+    var newOwner = await UserModel.findOne({ address: req.body.newOwner });
+    if (currentUser) {
+      var findToken = await NFTModel.findOne({
+        tokenId: req.body.tokenID,
+        tokenAddress: req.body.tokenAddress,
+      });
+
+      console.log(currentUser.Nfts);
+      var findIndex = currentUser.Nfts.indexOf(findToken._id);
+
+      if (findIndex != -1) {
+        await NFTModel.findOneAndUpdate(
+          {
+            tokenId: req.body.tokenID,
+            tokenAddress: req.body.tokenAddress,
+          },
+          {
+            owner: newOwner._id,
+            $unset: { collections: findToken.collections },
+          }
+        );
+
+        newOwner.Nfts.push(findToken._id);
+        currentUser.Nfts.splice(findIndex, 1);
+        await newOwner.save();
+        await currentUser.save();
+        res
+          .status(200)
+          .json({ success: true, msg: "Nft Transfered Successfully" });
+      } else {
+        res.status(404).json({ success: false, msg: "invalid ownership" });
+      }
+    } else {
+      res.status(404).json({ success: false, msg: "no user found" });
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, msg: "something went wrong" });
   }
 };
 
@@ -323,7 +372,7 @@ exports.myNfts = async (req, res) => {
       address: req.user.address,
     }).populate({ path: "Nfts" });
     if (currentUser) {
-      // console.log(currentUser.Nfts);
+      console.log(currentUser);
       var nfts = currentUser.Nfts;
       if (nfts.length >= 1) {
         var filteredNfts = [];

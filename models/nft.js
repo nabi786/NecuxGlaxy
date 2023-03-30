@@ -4,7 +4,6 @@ var NFTSchema = new mongoose.Schema(
   {
     tokenAddress: { type: String, required: true },
     tokenId: { type: String, required: true },
-    price: { type: Number },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
@@ -21,10 +20,11 @@ var NFTSchema = new mongoose.Schema(
     status: { type: String },
     featured: { type: Boolean, default: false },
     chainId: { type: Number },
+    price: { type: Number },
+    withEther: { type: Boolean },
     isOnSell: { type: Boolean, default: false },
     isOnAuction: { type: Boolean },
     auction: { type: Object },
-    withEther: { type: Boolean },
     alsoBought: { type: Boolean },
     likes: { type: Number, default: 0 },
     likedAddress: { type: [Array] },

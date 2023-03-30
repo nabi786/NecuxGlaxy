@@ -32,7 +32,11 @@ const upload = multer({ storage: storage, fileFilter: fileFilter }).single(
 // create nfts
 router.route("/create").post(auth, NFTController.nftCreate);
 // updated nft
-router.route("/update").post(upload, auth, NFTController.nftUpdate);
+router.route("/update").post(auth, NFTController.nftUpdate);
+
+//
+router.route("/transfer_Nft").post(auth, NFTController.transfer_Nft);
+
 // delete Nft
 router.route("/delete").post(auth, NFTController.nftdelete);
 // nfts that with low price
