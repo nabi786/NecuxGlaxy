@@ -81,9 +81,11 @@ exports.nftCreate = async (req, res) => {
 // =================================
 exports.nftUpdate = async (req, res) => {
   try {
-    var nft = await NFTModel.findOne({ _id: req.body.id });
+    var user = await UserModel.findOne({ address: req.user.address });
+    console.log(user.Nfts);
+    var findNft = user.Nfts.indexOf(req.body.id);
 
-    if (nft) {
+    if (findNft != -1) {
       var nft = await NFTModel.findOneAndUpdate(
         { _id: req.body.id },
         {
@@ -95,7 +97,7 @@ exports.nftUpdate = async (req, res) => {
 
       res.status(200).json({ success: true, msg: "updated Successfully" });
     } else {
-      res.status().json({ success: false, msg: "no nft found" });
+      res.status(404).json({ success: false, msg: "invalid OwnerShip" });
     }
   } catch (error) {
     return res.status(500).json({
