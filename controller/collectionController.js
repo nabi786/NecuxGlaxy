@@ -725,11 +725,14 @@ exports.getAllCollectionByCategory = async (req, res) => {
 
 exports.getNftsByCollectionID_ChainID = async (req, res) => {
   try {
+    var loggedInUser = await userModal.findOne({ address: req.user.address });
     var collection = await CollectionModel.findOne({
       _id: req.body.id,
-    }).populate({
-      path: "Nfts",
-    });
+    })
+      .populate({
+        path: "Nfts",
+      })
+      .populate({ path: "owner" });
 
     if (!collection) {
       return res
@@ -741,8 +744,9 @@ exports.getNftsByCollectionID_ChainID = async (req, res) => {
       var page_number = req.body.page;
 
       var filtered = [];
+
       nfts.forEach((item, index) => {
-        if (item.chainId === req.body.chainId && item.isOnSell == true) {
+        if (item.chainId === req.body.chainId) {
           filtered.push(item);
         }
       });
