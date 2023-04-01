@@ -730,7 +730,6 @@ exports.getNftsByCollectionID_ChainID = async (req, res) => {
     }).populate({
       path: "Nfts",
     });
-    // console.log(collection);
     if (!collection) {
       return res
         .status(404)
@@ -742,7 +741,7 @@ exports.getNftsByCollectionID_ChainID = async (req, res) => {
 
       var filtered = [];
       nfts.forEach((item, index) => {
-        if (item.chainId === req.body.chainId && item.isOnSell == false) {
+        if (item.chainId === req.body.chainId) {
           filtered.push(item);
         }
       });
