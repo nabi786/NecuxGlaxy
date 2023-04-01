@@ -33,6 +33,6 @@ app.all("*", function (req, res) {
   return res.status(404).json({ status: false, message: "Page not found" });
 });
 
-app.listen(process.env.PORT || "3000", () => {
-  console.log("App is Running on Port 3000");
+app.listen(process.env.PORT || "3001", () => {
+  console.log("App is Running on Port 3001");
 });

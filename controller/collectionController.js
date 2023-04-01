@@ -742,7 +742,7 @@ exports.getNftsByCollectionID_ChainID = async (req, res) => {
 
       var filtered = [];
       nfts.forEach((item, index) => {
-        if (item.chainId === req.body.chainId) {
+        if (item.chainId === req.body.chainId && item.isOnSell == true) {
           filtered.push(item);
         }
       });
