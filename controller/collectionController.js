@@ -730,6 +730,7 @@ exports.getNftsByCollectionID_ChainID = async (req, res) => {
     }).populate({
       path: "Nfts",
     });
+
     if (!collection) {
       return res
         .status(404)
