@@ -119,16 +119,25 @@ exports.transfer_Nft = async (req, res) => {
   try {
     var currentUser = await UserModel.findOne({ address: req.user.address });
     var newOwner = await UserModel.findOne({ address: req.body.newOwner });
+
     if (currentUser) {
       var findToken = await NFTModel.findOne({
         tokenId: req.body.tokenID,
         tokenAddress: req.body.tokenAddress,
       });
 
-      console.log(currentUser.Nfts);
       var findIndex = currentUser.Nfts.indexOf(findToken._id);
 
+      var collection = await collectionModal.findOne({
+        _id: findToken.collections,
+      });
+
       if (findIndex != -1) {
+        var nftsInCollection = collection.Nfts;
+        var findIndex = nftsInCollection.indexOf(findToken._id);
+        collection.Nfts.splice(findIndex, 1);
+        console.log("this is the colelction", collection.Nfts);
+
         await NFTModel.findOneAndUpdate(
           {
             tokenId: req.body.tokenID,
@@ -144,6 +153,7 @@ exports.transfer_Nft = async (req, res) => {
         currentUser.Nfts.splice(findIndex, 1);
         await newOwner.save();
         await currentUser.save();
+        await collection.save();
         res
           .status(200)
           .json({ success: true, msg: "Nft Transfered Successfully" });

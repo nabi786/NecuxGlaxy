@@ -1,6 +1,5 @@
 require("dotenv").config();
 require("./config/dataBase");
-
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");

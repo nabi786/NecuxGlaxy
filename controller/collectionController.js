@@ -750,6 +750,7 @@ exports.getNftsByCollectionID_ChainID = async (req, res) => {
           filtered.push(item);
         }
       });
+      
 
       var totalPages = Math.ceil(filtered.length / page_size);
       var result = await paginate(filtered, page_size, page_number);
