@@ -133,6 +133,7 @@ exports.transfer_Nft = async (req, res) => {
       });
 
       if (findIndex != -1) {
+        console.log("this is");
         var nftsInCollection = collection.Nfts;
         var findIndex = nftsInCollection.indexOf(findToken._id);
         collection.Nfts.splice(findIndex, 1);
@@ -164,6 +165,7 @@ exports.transfer_Nft = async (req, res) => {
       res.status(404).json({ success: false, msg: "no user found" });
     }
   } catch (err) {
+    console.log(err);
     res.status(500).json({ success: false, msg: "something went wrong" });
   }
 };
