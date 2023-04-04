@@ -577,43 +577,28 @@ exports.oldest = async (req, res) => {
 
 exports.onSell = async (req, res) => {
   try {
-    console.log(req.body);
     if (
-      !req.body.chainId ||
+      !req.body.chainID ||
       !req.body.size ||
       !req.body.page ||
-      !req.body.onSell
+      !req.body.isOnSell
     ) {
-      return res
-        .status(400)
-        .json({ success: false, msg: "add correct body data" });
-    }
-    let chainId = parseInt(req.body.chainId);
-    let count = await NFTModel.countDocuments({ chainId }).exec();
-    if (count < 1) {
-      return res.status(500).json({ status: false, message: "NFTs Not Found" });
+      res.status(404).json({ success: false, msg: "invalid creditionals" });
     } else {
-      let filterData = await NFTModel.find({
-        chainId,
-        isOnSell: req.body.onSell,
-      })
-        .skip((parseInt(req.body.page) - 1) * parseInt(req.body.size))
-        .limit(parseInt(req.body.size))
-        .lean()
-        .exec();
-      // console.log("this is filterData", filterData);
-      let totalPage = Math.ceil(count / parseInt(req.body.size));
-
-      filterData.reverse();
-      return res.status(200).json({
-        status: true,
-        message: "All Newest Nfts that are on Sell",
-        data: filterData,
-        totalPage,
+      var nfts = await NFTModel.find({
+        chainID: req.body.chainID,
+        isOnSell: req.body.isOnSell,
       });
+
+      var size = req.body.size;
+      var page = req.body.page;
+      var totalPages = Math.ceil(nfts.length / size);
+      var filtered = paginate(nfts, size, page);
+
+      res.status(200).json({ success: true, totalPages, nfts: filtered });
     }
   } catch (err) {
-    console.log("this is an erro", err);
+    console.log(err);
     res.status(500).json({ msg: "server Error", success: false });
   }
 };
