@@ -29,6 +29,7 @@ var NFTSchema = new mongoose.Schema(
     likes: { type: Number, default: 0 },
     likedAddress: { type: [Array] },
     royality: { type: String },
+    fileType: { type: String, required: true },
   },
   { timestamps: true }
 );

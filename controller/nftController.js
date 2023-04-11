@@ -49,6 +49,7 @@ exports.nftCreate = async (req, res) => {
         chainId: req.body.chainId,
         status: "active",
         royality: req.body.royality,
+        fileType: req.body.fileType,
       });
 
       user.Nfts.push(newNFT._id);

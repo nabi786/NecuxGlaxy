@@ -18,7 +18,7 @@ exports.adminRegister = async (req, res) => {
 
     console.log(newADMIN);
 
-    // await newADMIN.save();
+    await newADMIN.save();
     res
       .status(200)
       .json({ success: true, msg: "admin Registered Successfully" });
