@@ -590,7 +590,7 @@ exports.onSell = async (req, res) => {
       var nfts = await NFTModel.find({
         chainID: req.body.chainID,
         isOnSell: req.body.isOnSell,
-      });
+      }).populate({ path: "owner" });
 
       var size = req.body.size;
       var page = req.body.page;
