@@ -385,12 +385,13 @@ exports.myNfts = async (req, res) => {
   try {
     var currentUser = await UserModel.findOne({
       address: req.user.address,
-    }).populate({ path: "Nfts" });
+    }).populate({ path: "Nfts", populate: { path: "owner" } });
+
     if (currentUser) {
-      console.log(currentUser);
       var nfts = currentUser.Nfts;
       if (nfts.length >= 1) {
         var filteredNfts = [];
+
         nfts.forEach((item, index) => {
           if (
             item.chainId === req.body.chainId &&
