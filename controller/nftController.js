@@ -604,3 +604,36 @@ exports.onSell = async (req, res) => {
     res.status(500).json({ msg: "server Error", success: false });
   }
 };
+
+// ==========================
+//
+//         Cancel Listing
+//
+// =========================
+exports.cancelListing = async (req, res) => {
+  try {
+    // console.log("req.body", req.body);
+
+    var findToken = await NFTModel.findOne({
+      tokenId: req.body.tokenId,
+      tokenAddress: req.body.tokenAddress,
+    });
+    if (findToken != null) {
+      await NFTModel.findOneAndUpdate({
+        isOnSell: false,
+        price: 0,
+        withEther: false,
+      });
+
+      res
+        .status(200)
+        .json({ success: true, msg: "cancel listing successfully" });
+    } else {
+      res.status(404).json({ success: false, msg: "token not found" });
+    }
+  } catch (err) {
+    res
+      .status(500)
+      .json({ success: false, msg: "something went wrong serverSide" });
+  }
+};

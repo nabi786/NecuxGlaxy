@@ -66,4 +66,6 @@ router.post("/oldest", NFTController.oldest);
 // get nfts that are on Sell
 router.post("/onSell", NFTController.onSell);
 
+router.post("/cancelListing", auth, NFTController.cancelListing);
+
 module.exports = router;
