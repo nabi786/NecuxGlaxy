@@ -619,12 +619,11 @@ exports.cancelListing = async (req, res) => {
       tokenAddress: req.body.tokenAddress,
     });
     if (findToken != null) {
-      await NFTModel.findOneAndUpdate({
-        isOnSell: false,
-        price: 0,
-        withEther: false,
-      });
+      findToken.isOnSell = false;
+      findToken.price = 0;
+      findToken.withEther == false;
 
+      await findToken.save();
       res
         .status(200)
         .json({ success: true, msg: "cancel listing successfully" });
