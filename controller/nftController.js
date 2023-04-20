@@ -636,3 +636,19 @@ exports.cancelListing = async (req, res) => {
       .json({ success: false, msg: "something went wrong serverSide" });
   }
 };
+
+// Most Finest NFts that are mostFinestNfts
+exports.mostFinestNfts = async (req, res) => {
+  try {
+    var Nfts = await NFTModel.find({ isMostFinest: true });
+    if (Nfts) {
+      res.status(200).json({ success: true, data: Nfts });
+    } else {
+      res.status(404).json({ success: true, msg: "no data found" });
+    }
+  } catch (err) {
+    res
+      .status(500)
+      .json({ success: false, msg: "something went wrong serverside" });
+  }
+};

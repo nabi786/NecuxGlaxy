@@ -30,6 +30,7 @@ var NFTSchema = new mongoose.Schema(
     likedAddress: { type: [Array] },
     royality: { type: String },
     fileType: { type: String, required: true },
+    isMostFinest: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

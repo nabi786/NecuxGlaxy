@@ -68,4 +68,7 @@ router.post("/onSell", NFTController.onSell);
 
 router.post("/cancelListing", auth, NFTController.cancelListing);
 
+// find most Finest NFts
+router.post("/mostFinestNfts", NFTController.mostFinestNfts);
+
 module.exports = router;
